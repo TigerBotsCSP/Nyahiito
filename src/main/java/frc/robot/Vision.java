@@ -81,12 +81,6 @@ public class Vision {
             m_detectedTags.clear();
 
             for (AprilTagDetection detection : detections) {
-                System.out.println("Tag! " + detection.getId());
-                if (detection.getId() == 1) {
-                    SmartDashboard.putNumber("t1x", detection.getCenterX());
-                    SmartDashboard.putNumber("t1x%", detection.getCenterX() / 639f);
-                }
-
                 // Ooh, we saw this tag
                 m_detectedTags.add(detection.getId());
 
