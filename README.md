@@ -7,5 +7,5 @@ Nyahiito
 </p>
 
 <p align="center">
-Currently a work in progress!
+Nyahiito is Team #9072's FRC robot for the 2023 competition. It's a work in progress, though classes such as the six-wheel drive, AprilTag detector, and pneumatics arm are completed and ready when other people on the CSP Robotics Team are for once done with this damn robot
 </p>
