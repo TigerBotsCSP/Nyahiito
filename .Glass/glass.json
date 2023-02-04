@@ -1,0 +1,14 @@
+{
+  "NetworkTables": {
+    "types": {
+      "/FMSInfo": "FMSInfo"
+    }
+  },
+  "NetworkTables Settings": {
+    "dsClient": false,
+    "mode": "Client (NT3)",
+    "port3": 5801,
+    "port4": 5190,
+    "serverTeam": "169.254.155.185"
+  }
+}
