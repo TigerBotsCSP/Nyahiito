@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -17,8 +18,11 @@ public class Drive {
     
     private DifferentialDrive m_drive;
     
-    private final XboxController m_controller;
-    
+    public XboxController m_controller;
+
+    public Joystick m_joystickLeft;
+    public Joystick m_joystickRight;
+
     Drive() {
         m_frontLeft = new PWMSparkMax(0);
         m_rearLeft = new PWMSparkMax(1);
@@ -31,9 +35,19 @@ public class Drive {
         m_drive = new DifferentialDrive(m_left, m_right);
         
         m_controller = new XboxController(0);
+
+        // m_joystickLeft = new Joystick(0);
+        // m_joystickRight = new Joystick(1);
     }
     
-    public void startDrive() {
-        m_drive.tankDrive(-m_controller.getLeftY(), -m_controller.getRightY());
+    public void toggleDrive() {
+        // One-stick Mode
+        if (m_controller.getLeftBumper()) {
+            m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getLeftY());
+        } else {
+            m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getRightY());
+        }
+
+        // m_drive.tankDrive(-m_joystickLeft.getY(), -m_joystickRight.getY());
     }
 }

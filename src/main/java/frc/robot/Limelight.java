@@ -15,11 +15,11 @@ public class Limelight {
     WebSocket m_webSocket;
     ArrayList<Integer> m_detectedTags = new ArrayList<Integer>();
 
-    Limelight() {
+    private void Limelightx() {
         m_factory = new WebSocketFactory();
         try {
-            m_webSocket = m_factory.createSocket("ws://limelight.local:5806", 5000);
-
+            m_webSocket = m_factory.createSocket("ws://10.90.72.50:5806", 5000);
+            
             m_webSocket.addListener(new WebSocketAdapter() {
                 @Override
                 public void onTextMessage(WebSocket websocket, String message) throws Exception {
@@ -40,7 +40,9 @@ public class Limelight {
                 }
             });
 
+            System.out.print("h");
             m_webSocket.connect();
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (WebSocketException e) {
@@ -49,6 +51,7 @@ public class Limelight {
     }
 
     public void startLimelight() {
+        Limelightx();
     }
 
     public boolean tagDetected(int tag) {

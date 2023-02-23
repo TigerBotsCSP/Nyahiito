@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Arm {
     private DoubleSolenoid m_solenoidOne;
-    private DoubleSolenoid m_solenoidTwo;
+   private DoubleSolenoid m_solenoidTwo;
     private boolean m_armsOut = false;
 
     Arm() {
@@ -15,7 +15,7 @@ public class Arm {
     }
 
     public void toggleArm() {
-        if (m_armsOut) {
+        if (m_armsOut) {    
             m_armsOut = false;
             m_solenoidOne.set(Value.kReverse);
             m_solenoidTwo.set(Value.kReverse);
