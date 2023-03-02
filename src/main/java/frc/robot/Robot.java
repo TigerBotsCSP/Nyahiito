@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,26 +105,57 @@ public class Robot extends TimedRobot {
     firstTeleop = false;
   }
 
+  // ? Start teleop with APS mode
+  boolean configUseAPS = true;
+
+  // ? Start with specific pathway
+  // * APS must be off
+  String configPathwayFile = "C:/users/admin/desktop/nyahiito/0000.json";
+
+  // * Teleop APS Loader
+  // TODO: Move this + any APS functions to its own class
+  public void apSysLoad() {
+    Gson gson = new Gson();
+    ArrayList<ArrayList<Double>> data = new ArrayList<>();
+
+    // TODO: Test this.
+    try (BufferedReader br = new BufferedReader(new FileReader(configPathwayFile))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
+        data.add(row);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    System.out.println("Data loaded. Have fun in autonomous!");
+  }
+
   @Override
   public void teleopPeriodic() {
-    m_drive.toggleDrive(true);
+    if (configUseAPS) {
+      m_drive.toggleDrive(true);
 
-    ArrayList<Double> data = new ArrayList<Double>();
-    data.add(m_drive.m_controller.getLeftY()); // Robot forward
-    data.add(m_drive.m_controller.getLeftX()); // Robot rotation
-    data.add(m_drive.m_controller.getRightY()); // Arm rotation
-    data.add((double) m_drive.m_controller.getPOV()); // Arm length
-    data.add(m_drive.m_controller.getBButton() ? 1.0 : 0.0); // Arm intake
+      ArrayList<Double> data = new ArrayList<Double>();
+      data.add(m_drive.m_controller.getLeftY()); // Robot forward
+      data.add(m_drive.m_controller.getLeftX()); // Robot rotation
+      data.add(m_drive.m_controller.getRightY()); // Arm rotation
+      data.add((double) m_drive.m_controller.getPOV()); // Arm length
+      data.add(m_drive.m_controller.getBButton() ? 1.0 : 0.0); // Arm intake
 
-    m_actions.add(data);
+      m_actions.add(data);
 
-    m_encoders.pushPeriodic();
+      m_encoders.pushPeriodic();
 
-    // Simulator, not accurate
-    if (true) {
-      robotX += m_drive.m_controller.getLeftX() / 10;
-      robotY += -m_drive.m_controller.getLeftY() / 10;
-      m_field.setRobotPose(robotX, robotY, new Rotation2d(0, 0));
+      // Simulator, not accurate
+      if (true) {
+        robotX += m_drive.m_controller.getLeftX() / 10;
+        robotY += -m_drive.m_controller.getLeftY() / 10;
+        m_field.setRobotPose(robotX, robotY, new Rotation2d(0, 0));
+      }
+    } else {
+      apSysLoad();
     }
   }
 
@@ -137,7 +170,8 @@ public class Robot extends TimedRobot {
 
       // Simulator, not accurate
       if (true) {
-        // ! robotX just moves the robot on the 2D X-axis. it doesn't rotate like the actual robot.
+        // ! robotX just moves the robot on the 2D X-axis. it doesn't rotate like the
+        // actual robot.
         // * Edit the 10s so it'll match the actual robot's speed. Use encoders.
         robotX += data.get(1) / 10;
         robotY += -data.get(0) / 10;
@@ -169,7 +203,8 @@ public class Robot extends TimedRobot {
       }
 
       // Intaker
-      // ! Missense: in autonomous, this won't work b/c of how the data is recorded for the button.
+      // ! Missense: in autonomous, this won't work b/c of how the data is recorded
+      // for the button.
       if (data.get(4) == 1.0) {
         m_arm.toggleIntaker();
       }
