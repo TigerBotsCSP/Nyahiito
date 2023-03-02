@@ -47,9 +47,9 @@ public class Drive {
         // m_joystickRight = new Joystick(1);
     }
     
-    public void toggleDrive() {
+    public void toggleDrive(boolean oneStickMode) {
         // One-stick Mode
-        if (m_controller.getLeftBumper()) {
+        if (oneStickMode) {
             m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getLeftY());
         } else {
             m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getRightY());
