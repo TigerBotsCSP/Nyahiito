@@ -40,7 +40,6 @@ public class Limelight {
                 }
             });
 
-            System.out.print("h");
             m_webSocket.connect();
 
         } catch (IOException e) {

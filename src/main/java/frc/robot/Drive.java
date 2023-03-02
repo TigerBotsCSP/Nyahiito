@@ -23,6 +23,10 @@ public class Drive {
     public Joystick m_joystickLeft;
     public Joystick m_joystickRight;
 
+    public MotorController m_armIO;
+    public MotorController m_armRotate;
+
+
     Drive() {
         m_frontLeft = new PWMSparkMax(0);
         m_rearLeft = new PWMSparkMax(1);
@@ -36,6 +40,9 @@ public class Drive {
         
         m_controller = new XboxController(0);
 
+        m_armIO = new PWMSparkMax(4);
+        m_armRotate = new PWMSparkMax(5);
+
         // m_joystickLeft = new Joystick(0);
         // m_joystickRight = new Joystick(1);
     }
@@ -47,7 +54,9 @@ public class Drive {
         } else {
             m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getRightY());
         }
+    }
 
-        // m_drive.tankDrive(-m_joystickLeft.getY(), -m_joystickRight.getY());
+    public void toggleDrive(double leftSpeed, double rightSpeed) {
+        m_drive.tankDrive(leftSpeed, rightSpeed);
     }
 }
