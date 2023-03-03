@@ -16,8 +16,9 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
+// import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,10 +31,7 @@ public class ChassisSubsystem extends SubsystemBase {
 
   public GearState gearState = GearState.GEAR_LOW; 
   
-  private final SpeedControllerGroup leftMotors, rightMotors;
-
-  private final Compressor compressor;
-  private final DoubleSolenoid shifter;
+  private final MotorControllerGroup leftMotors, rightMotors;
   
   private final Encoder rightEncoder;
   private final Encoder leftEncoder;
@@ -54,16 +52,16 @@ public class ChassisSubsystem extends SubsystemBase {
   public ChassisSubsystem() {
     // Sets left sparks depending on conrroller presence
     if (Constants.PWMPorts.kLeftMotors.length == 2) {
-      leftMotors = new SpeedControllerGroup(new Spark(Constants.PWMPorts.kLeftMotors[0]), new Spark(Constants.PWMPorts.kLeftMotors[1]));
+      leftMotors = new MotorControllerGroup(new Spark(Constants.PWMPorts.kLeftMotors[0]), new Spark(Constants.PWMPorts.kLeftMotors[1]));
     } else {
-      leftMotors = new SpeedControllerGroup(new Spark(Constants.PWMPorts.kLeftMotors[0]));
+      leftMotors = new MotorControllerGroup(new Spark(Constants.PWMPorts.kLeftMotors[0]));
     }
 
     // Sets right sparks depending on controller presence
     if (Constants.PWMPorts.kRightMotors.length == 2) {
-      rightMotors = new SpeedControllerGroup(new Spark(Constants.PWMPorts.kRightMotors[0]), new Spark(Constants.PWMPorts.kRightMotors[1]));
+      rightMotors = new MotorControllerGroup(new Spark(Constants.PWMPorts.kRightMotors[0]), new Spark(Constants.PWMPorts.kRightMotors[1]));
     } else {
-      rightMotors = new SpeedControllerGroup(new Spark(Constants.PWMPorts.kRightMotors[0]));
+      rightMotors = new MotorControllerGroup(new Spark(Constants.PWMPorts.kRightMotors[0]));
     }
 
     driveBase = new DifferentialDrive(leftMotors, rightMotors);

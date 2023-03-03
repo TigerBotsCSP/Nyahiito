@@ -27,8 +27,6 @@ public class Drive {
   
     private final AHRS gyro;
     
-    private final RPMMonitor rpm = new RPMMonitor(360);
-
     private MotorController m_frontLeft;
     private MotorController m_rearLeft;
     private MotorControllerGroup m_left;
@@ -133,9 +131,6 @@ public class Drive {
         leftEncoder.reset();
         rightEncoder.reset();
       }
-    
-      public double getRotationsPerMinute() {
-        return rpm.getRotationsPerMinute();
-      }
+
 
 }
