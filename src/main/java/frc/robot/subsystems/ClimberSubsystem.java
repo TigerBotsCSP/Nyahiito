@@ -14,19 +14,19 @@ import frc.robot.Constants;
 
 
 public class ClimberSubsystem extends SubsystemBase {
-  public static enum LockState {LOCKED, UNLOCKED};
+  // public static enum LockState {LOCKED, UNLOCKED};
   
   /**
    * Creates a new subsystem.
    */
 
   private final Spark climber;
-  private final Servo lockServo;
+  // private final Servo lockServo;
 
   public ClimberSubsystem() {
       climber = new Spark(Constants.PWMPorts.kClimberMotor);
-      lockServo = new Servo(Constants.PWMPorts.kClimberServo);
-      lock();
+      //lockServo = new Servo(Constants.PWMPorts.kClimberServo);
+      //lock();
   }
 
   public void climb(double speed ) {
@@ -37,12 +37,12 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
   }
 
-  public void lock() {
-    lockServo.setAngle(140*0.666666);
-  }
+  // public void lock() {
+  //   lockServo.setAngle(140*0.666666);
+  // }
 
-  public void unlock() {
-    lockServo.setAngle(0);
-  }
+  // public void unlock() {
+  //   lockServo.setAngle(0);
+  // }
 }
  

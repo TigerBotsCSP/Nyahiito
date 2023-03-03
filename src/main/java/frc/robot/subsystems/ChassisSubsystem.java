@@ -70,10 +70,10 @@ public class ChassisSubsystem extends SubsystemBase {
 
     driveBase = new DifferentialDrive(leftMotors, rightMotors);
 
-    // Initializes compressor & shifter
-    compressor = new Compressor(1);
-    compressor.enabled();
-    shifter = new DoubleSolenoid(1, 0, 1);
+    // // Initializes compressor & shifter
+    // compressor = new Compressor(1);
+    // compressor.enabled();
+    // shifter = new DoubleSolenoid(1, 0, 1);
 
     // Assigns encoders to their ports
     leftEncoder = new Encoder(Constants.EncoderPorts.kLeftEncoderA, Constants.EncoderPorts.kLeftEncoderB, false);
@@ -84,7 +84,7 @@ public class ChassisSubsystem extends SubsystemBase {
 
     driveBase.setMaxOutput(1);
 
-    gearDown();
+    // gearDown();
   }
 
   public void drive(double speed, double angle) {
@@ -104,37 +104,37 @@ public class ChassisSubsystem extends SubsystemBase {
     gyro.reset();
   }
 
-  public void changeGear() {
-    if (shifter.get() != Value.kReverse) {
-      gearDown();
-    } else {
-      gearUp();
-    }
-  }
+  // public void changeGear() {
+  //   if (shifter.get() != Value.kReverse) {
+  //     gearDown();
+  //   } else {
+  //     gearUp();
+  //   }
+  // }
 
-  public void gearUp() {
-    if (shifter.get() != Value.kForward) {
-      gearState = GearState.GEAR_HIGH;
-      shifter.set(Value.kForward);
-      SmartDashboard.putBoolean("ShiftUp", true);
-    }
-  }
+  // public void gearUp() {
+  //   if (shifter.get() != Value.kForward) {
+  //     gearState = GearState.GEAR_HIGH;
+  //     shifter.set(Value.kForward);
+  //     SmartDashboard.putBoolean("ShiftUp", true);
+  //   }
+  // }
 
-  public void gearDown() {
-    if (shifter.get() != Value.kReverse) {
-      gearState = GearState.GEAR_LOW;
-      shifter.set(Value.kReverse);
-      SmartDashboard.putBoolean("ShiftUp", false);
-    }
-  }
+  // public void gearDown() {
+  //   if (shifter.get() != Value.kReverse) {
+  //     gearState = GearState.GEAR_LOW;
+  //     shifter.set(Value.kReverse);
+  //     SmartDashboard.putBoolean("ShiftUp", false);
+  //   }
+  // }
 
-  public void gearSet(GearState state) {
-    if (state == GearState.GEAR_HIGH) {
-      gearUp();
-    } else {
-      gearDown();
-    }
-  }
+  // public void gearSet(GearState state) {
+  //   if (state == GearState.GEAR_HIGH) {
+  //     gearUp();
+  //   } else {
+  //     gearDown();
+  //   }
+  // }
 
   public double gyroYaw() {
     return gyro.getYaw();
@@ -144,27 +144,27 @@ public class ChassisSubsystem extends SubsystemBase {
   public void periodic() {
     rpm.monitor(encoderAverage());
     
-    if (Constants.Control.kManualOverride) {
-      if (gearState == GearState.GEAR_LOW){
-        if (getRotationsPerMinute() > maxLow - 100) {
-          if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
-            gearUp();
-            autoShiftTimer = System.currentTimeMillis();
-          }
-        } else {
-          autoShiftTimer = System.currentTimeMillis();
-        }
-      } else {
-        if (getRotationsPerMinute() < minHigh + 100) {
-          if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
-            gearUp();
-            autoShiftTimer = System.currentTimeMillis();
-          }
-        } else {
-          autoShiftTimer = System.currentTimeMillis();
-        }
-      }
-    }
+    // if (Constants.Control.kManualOverride) {
+    //   if (gearState == GearState.GEAR_LOW){
+    //     if (getRotationsPerMinute() > maxLow - 100) {
+    //       if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
+    //         gearUp();
+    //         autoShiftTimer = System.currentTimeMillis();
+    //       }
+    //     } else {
+    //       autoShiftTimer = System.currentTimeMillis();
+    //     }
+    //   } else {
+    //     if (getRotationsPerMinute() < minHigh + 100) {
+    //       if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
+    //         gearUp();
+    //         autoShiftTimer = System.currentTimeMillis();
+    //       }
+    //     } else {
+    //       autoShiftTimer = System.currentTimeMillis();
+    //     }
+    //   }
+    // }
 
     // Puts a Number of variables to SmartDashboard
     SmartDashboard.putNumber("Gyro", gyro.getAngle());

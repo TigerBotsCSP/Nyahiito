@@ -22,7 +22,6 @@ public class Constants {
         
         //all 0 because i do not know the correct motor ports.
         public static final int kClimberServo = 0;
-        public static final int kColourWheelMotor = 19;
         public static final int[] kLeftMotors = {1};
         public static final int[] kRightMotors = {2, 3};
 
