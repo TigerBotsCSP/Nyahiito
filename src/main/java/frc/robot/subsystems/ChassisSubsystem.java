@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,8 +27,6 @@ import frc.robot.util.RPMMonitor;
 
 public class ChassisSubsystem extends SubsystemBase {
   public static enum GearState {GEAR_HIGH, GEAR_LOW}
-
-  private final PowerDistributionPanel pdp = new PowerDistributionPanel();
 
   public GearState gearState = GearState.GEAR_LOW; 
   
@@ -104,38 +102,6 @@ public class ChassisSubsystem extends SubsystemBase {
     gyro.reset();
   }
 
-  // public void changeGear() {
-  //   if (shifter.get() != Value.kReverse) {
-  //     gearDown();
-  //   } else {
-  //     gearUp();
-  //   }
-  // }
-
-  // public void gearUp() {
-  //   if (shifter.get() != Value.kForward) {
-  //     gearState = GearState.GEAR_HIGH;
-  //     shifter.set(Value.kForward);
-  //     SmartDashboard.putBoolean("ShiftUp", true);
-  //   }
-  // }
-
-  // public void gearDown() {
-  //   if (shifter.get() != Value.kReverse) {
-  //     gearState = GearState.GEAR_LOW;
-  //     shifter.set(Value.kReverse);
-  //     SmartDashboard.putBoolean("ShiftUp", false);
-  //   }
-  // }
-
-  // public void gearSet(GearState state) {
-  //   if (state == GearState.GEAR_HIGH) {
-  //     gearUp();
-  //   } else {
-  //     gearDown();
-  //   }
-  // }
-
   public double gyroYaw() {
     return gyro.getYaw();
   }
@@ -143,28 +109,6 @@ public class ChassisSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     rpm.monitor(encoderAverage());
-    
-    // if (Constants.Control.kManualOverride) {
-    //   if (gearState == GearState.GEAR_LOW){
-    //     if (getRotationsPerMinute() > maxLow - 100) {
-    //       if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
-    //         gearUp();
-    //         autoShiftTimer = System.currentTimeMillis();
-    //       }
-    //     } else {
-    //       autoShiftTimer = System.currentTimeMillis();
-    //     }
-    //   } else {
-    //     if (getRotationsPerMinute() < minHigh + 100) {
-    //       if (System.currentTimeMillis() - autoShiftTimer > 5000 ) {
-    //         gearUp();
-    //         autoShiftTimer = System.currentTimeMillis();
-    //       }
-    //     } else {
-    //       autoShiftTimer = System.currentTimeMillis();
-    //     }
-    //   }
-    // }
 
     // Puts a Number of variables to SmartDashboard
     SmartDashboard.putNumber("Gyro", gyro.getAngle());

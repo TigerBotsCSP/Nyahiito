@@ -9,10 +9,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
+//import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.AlignAndShoot;
-import frc.robot.commands.TurnInPlaceCommand;
+//import frc.robot.commands.TurnInPlaceCommand;
 import frc.robot.subsystems.ChassisSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -48,7 +48,7 @@ public class RobotContainerFinal {
   public RobotContainerFinal() {
     // The Drive Command
     m_ChassisSubsystem.setDefaultCommand(new RunCommand(()-> 
-      m_ChassisSubsystem.drive(driver.getY(Hand.kLeft), -driver.getX(Hand.kLeft)), 
+      m_ChassisSubsystem.drive(driver.getLeftY(), -driver.getLeftX()), 
       m_ChassisSubsystem));
 
     // Intake Motor Command
@@ -58,22 +58,22 @@ public class RobotContainerFinal {
 
     // Shooter Subsystem Default
     m_ShooterSubsystem.setDefaultCommand(new RunCommand(() -> {
-      m_ShooterSubsystem.set(operator.getY(Hand.kRight));
+      m_ShooterSubsystem.set(operator.getRightY());
     }, m_ShooterSubsystem));
 
     m_ShooterFeederSubsystem.setDefaultCommand(new RunCommand(() -> {
-      if (operator.getTriggerAxis(Hand.kRight) > 0.05) {
-        m_ShooterFeederSubsystem.setFeed(-operator.getTriggerAxis(Hand.kRight));
-        m_ShooterFeederSubsystem.setAntiJam(-operator.getTriggerAxis(Hand.kRight));
+      if (operator.getRightTriggerAxis() > 0.05) {
+        m_ShooterFeederSubsystem.setFeed(-operator.getRightTriggerAxis());
+        m_ShooterFeederSubsystem.setAntiJam(-operator.getRightTriggerAxis());
       } else {
-        m_ShooterFeederSubsystem.setFeed(operator.getTriggerAxis(Hand.kLeft));
-        m_ShooterFeederSubsystem.setAntiJam(operator.getTriggerAxis(Hand.kLeft));
+        m_ShooterFeederSubsystem.setFeed(operator.getLeftTriggerAxis());
+        m_ShooterFeederSubsystem.setAntiJam(operator.getLeftTriggerAxis());
       }
     }, m_ShooterFeederSubsystem));
 
     // Climber Subsystem Default
     m_ClimberSubsystem.setDefaultCommand(new RunCommand(() -> {
-      m_ClimberSubsystem.climb(operator.getY(Hand.kLeft));
+      m_ClimberSubsystem.climb(operator.getLeftY());
     }, m_ClimberSubsystem));
 
     // Configure the button bindings
@@ -93,10 +93,6 @@ public class RobotContainerFinal {
         ()-> Constants.Control.kManualOverride = !Constants.Control.kManualOverride)
         );
 
-    // Controls for the chassis
-    new JoystickButton(driver, Constants.Control.kRBumper)
-      .whenPressed(new InstantCommand(() -> m_ChassisSubsystem.changeGear(), m_ChassisSubsystem));
-
     // Controls for the intake
     new JoystickButton(driver, Constants.Control.kYButton)
       .whenPressed(new InstantCommand(() -> m_IntakeSubsystem.changeLock(), m_IntakeSubsystem));
@@ -111,10 +107,10 @@ public class RobotContainerFinal {
       .whileHeld(new RunCommand(()-> {
         m_ShooterSubsystem.set(1);
       }, m_ShooterSubsystem));
-    new JoystickButton(operator, Constants.Control.kLBumper)
-      .whenPressed(() -> {
-        new TurnInPlaceCommand(m_ChassisSubsystem, 0.85, SmartDashboard.getNumber(Constants.SmartDashboardKeys.kShooterTargetAngle, 0.0)).withTimeout(15).schedule();
-      });
+    // new JoystickButton(operator, Constants.Control.kLBumper)
+    //   .whenPressed(() -> {
+    //     new TurnInPlaceCommand(m_ChassisSubsystem, 0.85, SmartDashboard.getNumber(Constants.SmartDashboardKeys.kShooterTargetAngle, 0.0)).withTimeout(15).schedule();
+    //   });
 
     new JoystickButton(operator, Constants.Control.kYButton)
       .whenPressed(() -> {

@@ -7,8 +7,7 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -25,8 +24,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public ClimberSubsystem() {
       climber = new Spark(Constants.PWMPorts.kClimberMotor);
-      //lockServo = new Servo(Constants.PWMPorts.kClimberServo);
-      //lock();
+
   }
 
   public void climb(double speed ) {
@@ -36,13 +34,5 @@ public class ClimberSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
   }
-
-  // public void lock() {
-  //   lockServo.setAngle(140*0.666666);
-  // }
-
-  // public void unlock() {
-  //   lockServo.setAngle(0);
-  // }
 }
  

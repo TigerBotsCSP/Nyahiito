@@ -8,10 +8,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+
 
 public class IntakeSubsystem extends SubsystemBase {
   /**
@@ -26,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     intake = new Spark(Constants.PWMPorts.kIntakeMotor);
-    intakeLock = new DoubleSolenoid(1, 2, 3);
+    intakeLock = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3);
     intakeLock.set(Value.kForward);
 
     autoLockEnabled = true;

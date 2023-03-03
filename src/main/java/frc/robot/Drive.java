@@ -1,13 +1,34 @@
 package frc.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.SPI;
+import frc.robot.Constants;
+import frc.robot.util.RPMMonitor;    
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 
 public class Drive {
+
+    private final Encoder rightEncoder;
+    private final Encoder leftEncoder;
+  
+    private final AHRS gyro;
+    
+    private final RPMMonitor rpm = new RPMMonitor(360);
+
     private MotorController m_frontLeft;
     private MotorController m_rearLeft;
     private MotorControllerGroup m_left;
@@ -28,6 +49,7 @@ public class Drive {
 
 
     Drive() {
+
         m_frontLeft = new PWMSparkMax(0);
         m_rearLeft = new PWMSparkMax(1);
         m_left = new MotorControllerGroup(m_frontLeft, m_rearLeft);
@@ -43,9 +65,24 @@ public class Drive {
         m_armIO = new PWMSparkMax(4);
         m_armRotate = new PWMSparkMax(5);
 
-        // m_joystickLeft = new Joystick(0);
-        // m_joystickRight = new Joystick(1);
-    }
+
+        // Assigns encoders to their ports
+        leftEncoder = new Encoder(Constants.EncoderPorts.kLeftEncoderA, Constants.EncoderPorts.kLeftEncoderB, false);
+        rightEncoder = new Encoder(Constants.EncoderPorts.kRightEncoderA, Constants.EncoderPorts.kRightEncoderB, true);
+
+        // Sets the Gyro Port
+        gyro = new AHRS(SPI.Port.kMXP);
+        m_drive.setMaxOutput(1);
+  }
+
+  public void drive(double speed, double angle) {
+    m_drive.arcadeDrive(speed, angle);
+  }
+
+  public void sideDrive(double leftMotorSpeed, double rightMotorSpeed) {
+    m_left.set(leftMotorSpeed);
+    m_right.set(rightMotorSpeed);
+  }
     
     public void toggleDrive(boolean oneStickMode) {
         // One-stick Mode
@@ -59,4 +96,46 @@ public class Drive {
     public void toggleDrive(double leftSpeed, double rightSpeed) {
         m_drive.tankDrive(leftSpeed, rightSpeed);
     }
+    
+    public double gyroAngle(){
+        return gyro.getAngle();
+      }
+    
+    public void gyroReset(){
+      gyro.reset();
+    }
+
+    public double gyroYaw() {
+      return gyro.getYaw();
+    }
+    
+    // @Override
+    // public void periodic() {
+    //   rpm.monitor(encoderAverage());
+
+    //   // Puts a Number of variables to SmartDashboard
+    //   SmartDashboard.putNumber("Gyro", gyro.getAngle());
+    //   SmartDashboard.putNumber("Left Encoder", leftEncoder.get());
+    //   SmartDashboard.putNumber("Right Encoder", rightEncoder.get());
+    //   SmartDashboard.putNumber("Chassis RPM", getRotationsPerMinute());
+    //   SmartDashboard.putNumberArray("ChassisDisplacement", new double[]{gyro.getDisplacementX() * 39.37, gyro.getDisplacementY() * 39.37});
+    // }
+
+    public double encoderAverage() {
+      return (leftEncoder.get() + rightEncoder.get()) / 2;
+    }
+
+    public double getDistance(){
+      return (leftEncoder.get() + rightEncoder.get()) / (Constants.EncoderPorts.ENCODER_COUNTS_PER_INCH * 2);
+    }
+    
+      public void encoderReset() {
+        leftEncoder.reset();
+        rightEncoder.reset();
+      }
+    
+      public double getRotationsPerMinute() {
+        return rpm.getRotationsPerMinute();
+      }
+
 }
