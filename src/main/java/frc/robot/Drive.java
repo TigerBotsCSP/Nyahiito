@@ -39,9 +39,9 @@ public class Drive {
     public void toggleDrive(boolean oneStickMode) {
         // One-stick Mode
         if (oneStickMode) {
-           m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getLeftY());
+           m_drive.tankDrive(-m_joystick.getY(), m_joystick.getY());
         } else {
-           m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getLeftY());
+           m_drive.tankDrive(-m_joystick.getY(), m_joystick.getY());
         }
     }
 
