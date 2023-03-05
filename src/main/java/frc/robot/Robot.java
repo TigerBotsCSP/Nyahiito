@@ -6,9 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-
-import java.io.IOException;
 import java.util.ArrayList;
+
+import com.google.gson.Gson;
+
+import java.io.*;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
@@ -28,7 +30,23 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    m_actions.clear();
+    if (true) {
+      Gson gson = new Gson();
+
+      try (BufferedReader br = new BufferedReader(new FileReader("/home/lvuser/p_0.json"))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+          ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
+          m_actions.add(row);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+      System.out.println("Autonomous loaded, have fun!");
+    } else {
+      m_actions.clear();
+    }
   }
 
   /** This function is called periodically during teleoperated mode. */
@@ -36,7 +54,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Drive functionality
     if (Math.abs(m_drive.m_controller.getLeftY()) < .3) {
-      double joystickX = m_drive.m_controller.getRightX();
+      double joystickX = m_drive.m_controller.getLeftX();
       // Rotation mode
       if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
         m_drive.toggleDrive(0, joystickX);
