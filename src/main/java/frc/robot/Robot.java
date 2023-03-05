@@ -27,8 +27,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // Show field on dashboard
-    SmartDashboard.putData(m_field);
   }
 
   /** This function is called once each time the robot enters teleoperated mode. */
