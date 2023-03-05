@@ -27,11 +27,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // Tag detection
-    if (m_limeLight.tagDetected(0)) {
-      System.out.println("Tag 0 detected!");
-    }
-
     // Show field on dashboard
     SmartDashboard.putData(m_field);
   }
