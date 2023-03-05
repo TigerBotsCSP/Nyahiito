@@ -20,7 +20,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
+<<<<<<< HEAD
   private RobotContainerFinal m_robotContainerFinal;
+=======
+  private RobotContainerFinal m_robotContainer;
+>>>>>>> cbc98cfc1302c7ee0e9968ee1d742997109e7b2f
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -30,7 +34,11 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+<<<<<<< HEAD
   m_robotContainerFinal = new RobotContainerFinal();
+=======
+  m_robotContainer = new RobotContainerFinal();
+>>>>>>> cbc98cfc1302c7ee0e9968ee1d742997109e7b2f
     
   }
 
@@ -66,7 +74,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+<<<<<<< HEAD
     m_autonomousCommand = m_robotContainerFinal.getAutonomousCommand();
+=======
+>>>>>>> cbc98cfc1302c7ee0e9968ee1d742997109e7b2f
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -91,7 +102,11 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
+<<<<<<< HEAD
     m_robotContainerFinal.teleopInit();
+=======
+    // m_robotContainer.teleopInit();
+>>>>>>> cbc98cfc1302c7ee0e9968ee1d742997109e7b2f
   }
 
   /**
