@@ -4,34 +4,31 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.ArrayList;
-import java.util.Random;
-
-import com.google.gson.Gson;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
   Arm m_arm = new Arm();
- Limelight m_limeLight = new Limelight();
+  Limelight m_limeLight = new Limelight();
   Encoders m_encoders = new Encoders();
 
   Field2d m_field = new Field2d();
 
   ArrayList<ArrayList<Double>> m_actions = new ArrayList<>(3);
-
   int index = 0;
-  double robotX = 1;
-  double robotY = 1;
 
   @Override
   public void robotInit() {
@@ -40,204 +37,75 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    // Drive
-    if (Math.abs(m_drive.m_joystick.getY()) < .3) {
-      double joystickX = m_drive.m_joystick.getX();
-      // Rotation mode
-       if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
-         m_drive.toggleDrive(joystickX, 0);
-      } else {
-         m_drive.toggleDrive(0, joystickX);
-       }
-    } else {
-      // Forward mode
-      m_drive.toggleDrive(true);
+    // Tag detection
+    if (m_limeLight.tagDetected(0)) {
+      System.out.println("Tag 0 detected!");
     }
-
-    // // Arm rotation
-    // m_arm.setOrientation(m_drive.m_controller.getRightY());
-
-    // // Arm length
-    // if (m_drive.m_controller.getPOV() == 0) {
-    //   m_arm.setLength(1);
-    // } else if (m_drive.m_controller.getPOV() == 180) {
-    //   m_arm.setLength(-1);
-    // }
-
-    // Intaker
-    if (m_drive.m_controller.getBButton()) {
-      m_arm.toggleIntaker();
-    }
-
-    if (m_drive.m_controller.getXButton()){
-      m_arm.setOrientation(-.6);
-    }
-    else if (m_drive.m_controller.getYButton()){
-      m_arm.setOrientation(.6);
-    }
-    else if (m_drive.m_controller.getStartButton()){
-      m_arm.setOrientation(0);
-    }
-
-    if (m_drive.m_controller.getLeftBumper()){
-      m_arm.setLength(.6);
-    }
-    else if (m_drive.m_controller.getRightBumper()){
-      m_arm.setLength(-.6);
-    }
-    else if (m_drive.m_controller.getBackButton()){
-      m_arm.setLength(0);
-    }
-
-
 
     // Show field on dashboard
     SmartDashboard.putData(m_field);
+
+    // Field Simulation (WIP)
+    /*
+     * ADIS16448_IMU m_gyro = new ADIS16448_IMU();
+     * DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
+     * m_gyro.getRotation2d(),
+     * m_leftEncoder.getDistance(), m_rightEncoder.getDistance(),
+     * new Pose2d(5.0, 13.5, new Rotation2d()));
+     * 
+     * m_field.setRobotPose(m_odometry.getPoseMeters());
+     */
   }
 
-  boolean firstTeleop = true;
-
+  double robotX = 1;
+  double robotY = 1;
+  Rotation2d d = new Rotation2d(0, 0);
+  /** This function is called once each time the robot enters teleoperated mode. */
   @Override
   public void teleopInit() {
-    // Simulation - Save current
-    if (!firstTeleop) {
-      Gson gson = new Gson();
-      String json = gson.toJson(m_actions);
-      String fileName = String.format("%04d", new Random().nextInt(10000));
-
-      try (FileWriter file = new FileWriter("c:/users/admin/desktop/nyahiito/" + fileName + ".json")) {
-       file.write(json);
-        System.out.println("Saved as " + fileName + ".");
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
-
-    // Simulation - Clear previous
     m_actions.clear();
-
-    // Start APS
-    firstTeleop = false;
+    m_field.setRobotPose(m_drive.m_controller.getLeftX(), m_drive.m_controller.getLeftY(), d);
   }
 
-  // ? Start teleop with APS mode
-  boolean configUseAPS = true;
-
-  // ? Start with specific pathway
-  // * APS must be off!
-  String configPathwayFile = "C:/users/admin/desktop/nyahiito/0000.json";
-
-  // * Teleop APS Loader
-  // TODO: Move this + any APS functions to its own class
-  public void apSysLoad() {
-   Gson gson = new Gson();
-    ArrayList<ArrayList<Double>> data = new ArrayList<>();
-
-    // String digits = configPathwayFile.replaceAll("\\D+", "");
-
-    if (m_limeLight.tagDetected(1) || m_limeLight.tagDetected(6)) {
-      configPathwayFile = "C:/users/admin/desktop/nyahiito/1.json";
-    } else if (m_limeLight.tagDetected(2) || m_limeLight.tagDetected(7)) {
-      configPathwayFile = "C:/users/admin/desktop/nyahiito/2.json";
-    } else if (m_limeLight.tagDetected(3) || m_limeLight.tagDetected(8)) {
-      configPathwayFile = "C:/users/admin/desktop/nyahiito/3.json";
-    } 
-
-    // TODO: Test this.
-    try (BufferedReader br = new BufferedReader(new FileReader(configPathwayFile))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-        data.add(row);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    System.out.println("Data loaded. Have fun in autonomous ZADDY!");
-  }
-
+  /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    if (configUseAPS) {
-      m_drive.toggleDrive(true);
+   m_drive.toggleDrive(true);
 
-      ArrayList<Double> data = new ArrayList<Double>();
-      data.add(m_drive.m_controller.getLeftY()); // Robot forward
-      data.add(m_drive.m_controller.getLeftX()); // Robot rotation
-      data.add(m_drive.m_controller.getRightY()); // Arm rotation
-      data.add((double) m_drive.m_controller.getPOV()); // Arm length
-      data.add(m_drive.m_controller.getBButton() ? 1.0 : 0.0); // Arm intake
+   ArrayList<Double> data = new ArrayList<Double>();
+   data.add(m_drive.m_controller.getLeftY());
+   data.add(m_drive.m_controller.getRightY());
+   m_actions.add(data);
 
-      m_actions.add(data);
+   m_encoders.pushPeriodic();
 
-      m_encoders.pushPeriodic();
+   // Simulator, not accurate
+   if (true) {
+    robotX += m_drive.m_controller.getLeftX() / 10;
+    robotY += -m_drive.m_controller.getLeftY() / 10;
+      m_field.setRobotPose(robotX, robotY, d);
+   }
 
-      // Simulator, not accurate
-      if (true) {
-        robotX += m_drive.m_controller.getLeftX() / 10;
-        robotY += -m_drive.m_controller.getLeftY() / 10;
-        m_field.setRobotPose(robotX, robotY, new Rotation2d(0, 0));
-      }
-    } else {
-      apSysLoad();
-    }
+    /* NetworkTableInstance instance = NetworkTableInstance.getDefault();
+    instance.setServerTeam(0);
+    NetworkTable table = instance.getTable("limelight");
+    NetworkTableEntry tv = table.getEntry("tid");
+
+    double value = tv.getDouble(59.0);
+    System.out.println("Value: " + value); */
   }
 
-  // *Autonomous Mode*
+  // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
     try {
-      ArrayList<Double> data = m_actions.get(index);
-
-      // Robot forward RR AR AL AI
-      m_drive.toggleDrive(data.get(0), data.get(1));
-
-      // Simulator, not accurate
-      if (true) {
-        // ! robotX just moves the robot on the 2D X-axis. it doesn't rotate like the
-        // actual robot.
-        // * Edit the 10s so it'll match the actual robot's speed. Use encoders.
-        robotX += data.get(1) / 10;
-        robotY += -data.get(0) / 10;
-        m_field.setRobotPose(robotX, robotY, new Rotation2d(0, 0));
-      }
-
-      // Drive
-      if (Math.abs(data.get(0)) < .3) {
-        double joystickX = data.get(1);
-        // Rotation mode
-        if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
-          m_drive.toggleDrive(joystickX, 0);
-        } else {
-          m_drive.toggleDrive(0, joystickX);
-        }
-      } else {
-        // Forward mode
-        m_drive.toggleDrive(true);
-      }
-
-      // Arm rotation
-      m_arm.setOrientation(data.get(2));
-
-      // Arm length
-      if (data.get(3) == 0) {
-        m_arm.setLength(1);
-      } else if (data.get(3) == 180) {
-        m_arm.setLength(-1);
-      }
-
-      // Intaker
-      // ! Missense: in autonomous, this won't work b/c of how the data is recorded
-      // for the button.
-      if (data.get(4) == 1.0) {
-        m_arm.toggleIntaker();
-      }
-
+      m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
+      System.out.println(m_actions.get(index).get(0));
       index++;
     } catch (Exception e) {
       index = 0;
     }
+    //m_drive.toggleDrive(.5, -.5);
   }
 
   /** This function is called once each time the robot enters test mode. */
