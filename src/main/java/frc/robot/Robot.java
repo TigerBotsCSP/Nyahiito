@@ -4,20 +4,10 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.ADIS16448_IMU;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.ArrayList;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
@@ -46,20 +36,30 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData(m_field);
   }
 
-  double robotX = 1;
-  double robotY = 1;
-  Rotation2d d = new Rotation2d(0, 0);
   /** This function is called once each time the robot enters teleoperated mode. */
   @Override
   public void teleopInit() {
     m_actions.clear();
-    m_field.setRobotPose(m_drive.m_controller.getLeftX(), m_drive.m_controller.getLeftY(), d);
   }
 
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
    m_drive.toggleDrive(true);
+
+   // Drive functionality
+   if (Math.abs(m_drive.m_joystick.getY()) < .3) {
+    double joystickX = m_drive.m_joystick.getX();
+    // Rotation mode
+     if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
+       m_drive.toggleDrive(joystickX, 0);
+    } else {
+       m_drive.toggleDrive(0, joystickX);
+     }
+  } else {
+    // Forward mode
+    m_drive.toggleDrive(true);
+  }
 
    ArrayList<Double> data = new ArrayList<Double>();
 
@@ -70,13 +70,6 @@ public class Robot extends TimedRobot {
    m_actions.add(data);
 
    m_encoders.pushPeriodic();
-
-   // Simulator, not accurate
-   if (true) {
-    robotX += m_drive.m_controller.getLeftX() / 10;
-    robotY += -m_drive.m_controller.getLeftY() / 10;
-      m_field.setRobotPose(robotX, robotY, d);
-   }
   }
 
   // Autonomous Mode
@@ -96,20 +89,10 @@ public class Robot extends TimedRobot {
         // Forward mode
         m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
       }
-      
+
       index++;
     } catch (Exception e) {
       index = 0;
     }
-  }
-
-  /** This function is called once each time the robot enters test mode. */
-  @Override
-  public void testInit() {
-  }
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {
   }
 }
