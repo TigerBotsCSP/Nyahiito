@@ -51,30 +51,30 @@ public class RobotContainerFinal {
       m_ChassisSubsystem.drive(driver.getLeftY(), -driver.getLeftX()), 
       m_ChassisSubsystem));
 
-    // Intake Motor Command
-    m_IntakeSubsystem.setDefaultCommand(new RunCommand(() -> {
-      m_IntakeSubsystem.stopIntake();
-    }, m_IntakeSubsystem));
+    // // Intake Motor Command
+    // m_IntakeSubsystem.setDefaultCommand(new RunCommand(() -> {
+    //   m_IntakeSubsystem.stopIntake();
+    // }, m_IntakeSubsystem));
 
-    // Shooter Subsystem Default
-    m_ShooterSubsystem.setDefaultCommand(new RunCommand(() -> {
-      m_ShooterSubsystem.set(operator.getRightY());
-    }, m_ShooterSubsystem));
+    // // Shooter Subsystem Default
+    // m_ShooterSubsystem.setDefaultCommand(new RunCommand(() -> {
+    //   m_ShooterSubsystem.set(operator.getRightY());
+    // }, m_ShooterSubsystem));
 
-    m_ShooterFeederSubsystem.setDefaultCommand(new RunCommand(() -> {
-      if (operator.getRightTriggerAxis() > 0.05) {
-        m_ShooterFeederSubsystem.setFeed(-operator.getRightTriggerAxis());
-        m_ShooterFeederSubsystem.setAntiJam(-operator.getRightTriggerAxis());
-      } else {
-        m_ShooterFeederSubsystem.setFeed(operator.getLeftTriggerAxis());
-        m_ShooterFeederSubsystem.setAntiJam(operator.getLeftTriggerAxis());
-      }
-    }, m_ShooterFeederSubsystem));
+    // m_ShooterFeederSubsystem.setDefaultCommand(new RunCommand(() -> {
+    //   if (operator.getRightTriggerAxis() > 0.05) {
+    //     m_ShooterFeederSubsystem.setFeed(-operator.getRightTriggerAxis());
+    //     m_ShooterFeederSubsystem.setAntiJam(-operator.getRightTriggerAxis());
+    //   } else {
+    //     m_ShooterFeederSubsystem.setFeed(operator.getLeftTriggerAxis());
+    //     m_ShooterFeederSubsystem.setAntiJam(operator.getLeftTriggerAxis());
+    //   }
+    // }, m_ShooterFeederSubsystem));
 
-    // Climber Subsystem Default
-    m_ClimberSubsystem.setDefaultCommand(new RunCommand(() -> {
-      m_ClimberSubsystem.climb(operator.getLeftY());
-    }, m_ClimberSubsystem));
+    // // Climber Subsystem Default
+    // m_ClimberSubsystem.setDefaultCommand(new RunCommand(() -> {
+    //   m_ClimberSubsystem.climb(operator.getLeftY());
+    // }, m_ClimberSubsystem));
 
     // Configure the button bindings
     configureButtonBindings();
