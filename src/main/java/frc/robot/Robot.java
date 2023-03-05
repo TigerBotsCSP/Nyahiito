@@ -62,8 +62,11 @@ public class Robot extends TimedRobot {
    m_drive.toggleDrive(true);
 
    ArrayList<Double> data = new ArrayList<Double>();
-   data.add(m_drive.m_controller.getLeftY());
-   data.add(m_drive.m_controller.getRightY());
+
+   data.add(m_drive.m_joystick.getY()); // Robot forward
+   data.add(m_drive.m_joystick.getX()); // Robot rotation
+
+   // Push the data
    m_actions.add(data);
 
    m_encoders.pushPeriodic();
@@ -74,27 +77,30 @@ public class Robot extends TimedRobot {
     robotY += -m_drive.m_controller.getLeftY() / 10;
       m_field.setRobotPose(robotX, robotY, d);
    }
-
-    /* NetworkTableInstance instance = NetworkTableInstance.getDefault();
-    instance.setServerTeam(0);
-    NetworkTable table = instance.getTable("limelight");
-    NetworkTableEntry tv = table.getEntry("tid");
-
-    double value = tv.getDouble(59.0);
-    System.out.println("Value: " + value); */
   }
 
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
     try {
-      m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
-      System.out.println(m_actions.get(index).get(0));
+      // Drive functionality
+      if (Math.abs(-m_actions.get(index).get(0)) < .3) {
+        double joystickX = -m_actions.get(index).get(1);
+        // Rotation mode
+        if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
+          m_drive.toggleDrive(joystickX, 0);
+        } else {
+          m_drive.toggleDrive(0, joystickX);
+        }
+      } else {
+        // Forward mode
+        m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
+      }
+      
       index++;
     } catch (Exception e) {
       index = 0;
     }
-    //m_drive.toggleDrive(.5, -.5);
   }
 
   /** This function is called once each time the robot enters test mode. */
