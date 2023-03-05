@@ -35,8 +35,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // Drive functionality
-    if (Math.abs(m_drive.m_joystick.getY()) < .3) {
-      double joystickX = m_drive.m_joystick.getX();
+    if (Math.abs(m_drive.m_controller.getLeftY()) < .3) {
+      double joystickX = m_drive.m_controller.getRightX();
       // Rotation mode
       if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
         m_drive.toggleDrive(0, joystickX);
@@ -71,8 +71,8 @@ public class Robot extends TimedRobot {
     // Initialize the autonomous data for this frame
     ArrayList<Double> data = new ArrayList<Double>();
 
-    data.add(m_drive.m_joystick.getY()); // Robot forward
-    data.add(m_drive.m_joystick.getX()); // Robot rotation
+    data.add(m_drive.m_controller.getLeftY()); // Robot forward
+    data.add(m_drive.m_controller.getLeftX()); // Robot rotation
     data.add(m_drive.m_controller.getRightY()); // Arm rotation
     data.add((double) m_drive.m_controller.getPOV()); // Arm length
 
