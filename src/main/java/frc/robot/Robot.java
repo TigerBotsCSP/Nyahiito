@@ -44,17 +44,6 @@ public class Robot extends TimedRobot {
 
     // Show field on dashboard
     SmartDashboard.putData(m_field);
-
-    // Field Simulation (WIP)
-    /*
-     * ADIS16448_IMU m_gyro = new ADIS16448_IMU();
-     * DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(
-     * m_gyro.getRotation2d(),
-     * m_leftEncoder.getDistance(), m_rightEncoder.getDistance(),
-     * new Pose2d(5.0, 13.5, new Rotation2d()));
-     * 
-     * m_field.setRobotPose(m_odometry.getPoseMeters());
-     */
   }
 
   double robotX = 1;
