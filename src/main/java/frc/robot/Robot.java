@@ -15,14 +15,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-//import com.google.gson.Gson;
+import com.google.gson.Gson;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
   Arm m_arm = new Arm();
- // Limelight m_limeLight = new Limelight();
+ Limelight m_limeLight = new Limelight();
   Encoders m_encoders = new Encoders();
 
   Field2d m_field = new Field2d();
@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    // m_limeLight.startLimelight();
+    m_limeLight.startLimelight();
   }
 
   @Override
@@ -101,12 +101,12 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     // Simulation - Save current
     if (!firstTeleop) {
-      //Gson gson = new Gson();
-      //String json = gson.toJson(m_actions);
+      Gson gson = new Gson();
+      String json = gson.toJson(m_actions);
       String fileName = String.format("%04d", new Random().nextInt(10000));
 
       try (FileWriter file = new FileWriter("c:/users/admin/desktop/nyahiito/" + fileName + ".json")) {
-       // file.write(json);
+       file.write(json);
         System.out.println("Saved as " + fileName + ".");
       } catch (IOException e) {
         e.printStackTrace();
@@ -130,25 +130,25 @@ public class Robot extends TimedRobot {
   // * Teleop APS Loader
   // TODO: Move this + any APS functions to its own class
   public void apSysLoad() {
-   // Gson gson = new Gson();
+   Gson gson = new Gson();
     ArrayList<ArrayList<Double>> data = new ArrayList<>();
 
     // String digits = configPathwayFile.replaceAll("\\D+", "");
 
-    /*if (m_limeLight.tagDetected(1) || m_limeLight.tagDetected(6)) {
+    if (m_limeLight.tagDetected(1) || m_limeLight.tagDetected(6)) {
       configPathwayFile = "C:/users/admin/desktop/nyahiito/1.json";
     } else if (m_limeLight.tagDetected(2) || m_limeLight.tagDetected(7)) {
       configPathwayFile = "C:/users/admin/desktop/nyahiito/2.json";
     } else if (m_limeLight.tagDetected(3) || m_limeLight.tagDetected(8)) {
       configPathwayFile = "C:/users/admin/desktop/nyahiito/3.json";
-    } */
+    } 
 
     // TODO: Test this.
     try (BufferedReader br = new BufferedReader(new FileReader(configPathwayFile))) {
       String line;
       while ((line = br.readLine()) != null) {
-        //ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-        //data.add(row);
+        ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
+        data.add(row);
       }
     } catch (Exception e) {
       e.printStackTrace();
