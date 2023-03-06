@@ -7,7 +7,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj.PS4Controller.Button;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.PS4Controller;
+//import edu.wpi.first.wpilibj.PS4Controller;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.TurnToAngle;
@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
+//import edu.wpi.first.wpilibj.XboxController.Button;
 
 
 /**
@@ -61,7 +62,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Drive at half speed when the right bumper is held
-    new JoystickButton(m_driverController, Button.kR1.value)
+    new JoystickButton(m_driverController,  Button.kR1.value)
         .onTrue(new InstantCommand(() -> m_robotDrive.setMaxOutput(0.5)))
         .onFalse(new InstantCommand(() -> m_robotDrive.setMaxOutput(1)));
 
