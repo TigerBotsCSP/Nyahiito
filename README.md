@@ -1,11 +1,11 @@
 <h1 align="center">
-Nyahiito
+Nyahiito Development
 </h1>
 
 <p align="center">
-  <img src="https://www.pokencyclopedia.info/sprites/spin-off/ico_shuffle/ico_shuffle_726.png" alt="torracat (nyahiito)"/>
+  <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/213f11f7-b47f-4f5c-b394-1bc1e6d41f48/de0wug1-f3245890-6c81-4f3c-b162-a085f5d230d5.png/v1/fill/w_256,h_256,strp/shiny_litten__shuffle__by_noodnood966_de0wug1-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MjU2IiwicGF0aCI6IlwvZlwvMjEzZjExZjctYjQ3Zi00ZjVjLWIzOTQtMWJjMWU2ZDQxZjQ4XC9kZTB3dWcxLWYzMjQ1ODkwLTZjODEtNGYzYy1iMTYyLWEwODVmNWQyMzBkNS5wbmciLCJ3aWR0aCI6Ijw9MjU2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.tmq7_Yi2pj9gsmniR11pF03wFq4bLRlM8Xr8eXGdaLI" alt="torracat (nyahiito)"/>
 </p>
 
 <p align="center">
-Nyahiito is Team #9072's FRC robot for the 2023 competition. It's a work in progress, though classes such as the six-wheel drive, AprilTag detector, and pneumatics arm are completed and ready when other people on the CSP Robotics Team are for once done with this damn robot
+Development branch for Akky's use on his FRC virtual machine setup
 </p>
