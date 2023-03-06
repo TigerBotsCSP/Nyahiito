@@ -5,140 +5,119 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import java.util.ArrayList;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-import com.google.gson.Gson;
-
-import java.io.*;
-
+/**
+ * The VM is configured to automatically run this class, and to call the functions corresponding to
+ * each mode, as described in the TimedRobot documentation. If you change the name of this class or
+ * the package after creating this project, you must also update the build.gradle file in the
+ * project.
+ */
 public class Robot extends TimedRobot {
-  Drive m_drive = new Drive();
   Arm m_arm = new Arm();
-  Limelight m_limeLight = new Limelight();
-  Encoders m_encoders = new Encoders();
+  private Command m_autonomousCommand;
 
-  Field2d m_field = new Field2d();
+  private RobotContainer m_robotContainer;
 
-  ArrayList<ArrayList<Double>> m_actions = new ArrayList<>(3);
-  int index = 0;
-
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
   @Override
   public void robotInit() {
-    m_limeLight.startLimelight();
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
   }
+
+  /**
+   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * that you want ran during disabled, autonomous, teleoperated and test.
+   *
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * SmartDashboard integrated updating.
+   */
+  @Override
+  public void robotPeriodic() {
+    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+    // commands, running already-scheduled commands, removing finished or interrupted commands,
+    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // block in order for anything in the Command-based framework to work.
+    CommandScheduler.getInstance().run();
+  }
+
+  /** This function is called once each time the robot enters Disabled mode. */
+  @Override
+  public void disabledInit() {}
+
+  @Override
+  public void disabledPeriodic() {}
+
+  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  @Override
+  public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    /*
+     * String autoSelected = SmartDashboard.getString("Auto Selector",
+     * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
+     * = new MyAutoCommand(); break; case "Default Auto": default:
+     * autonomousCommand = new ExampleCommand(); break; }
+     */
+
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
+  }
+
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopInit() {
-    if (true) {
-      Gson gson = new Gson();
-
-      try (BufferedReader br = new BufferedReader(new FileReader("/home/lvuser/p_0.json"))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-          ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-          m_actions.add(row);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-
-      System.out.println("Autonomous loaded, have fun!");
-    } else {
-      m_actions.clear();
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
     }
   }
 
-  /** This function is called periodically during teleoperated mode. */
+  /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    // Drive functionality
-    if (Math.abs(m_drive.m_controller.getLeftY()) < .3) {
-      double joystickX = m_drive.m_controller.getLeftX();
-      // Rotation mode
-      if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
-        m_drive.toggleDrive(0, joystickX);
-      } else {
-        m_drive.toggleDrive(joystickX, 0);
-      }
-    } else {
-      // Forward mode
-      m_drive.toggleDrive(true);
-    }
 
     // Arm rotation
-    double armSpeed = Math.max(Math.min(m_drive.m_controller.getRightY(), 0.6), -0.6);
+    double armSpeed = Math.max(Math.min(m_robotContainer.m_driverController.getRightY(), 0.6), -0.6);
     m_arm.setOrientation(armSpeed);
-
     // Arm length
-    if (m_drive.m_controller.getPOV() == 0) {
+    if (m_robotContainer.m_driverController.getPOV() == 0) {
       m_arm.setLength(.6);
-    } else if (m_drive.m_controller.getPOV() == 180) {
+    } else if (m_robotContainer.m_driverController.getPOV() == 180) {
       m_arm.setLength(-.6);
     } else {
       m_arm.setLength(0);
     }
 
     // Emergency stop
-    if (m_drive.m_controller.getBackButton()) {
+    if (m_robotContainer.m_driverController.getBackButton()) {
       m_arm.setOrientation(0);
       m_arm.setLength(0);
-      m_drive.toggleDrive(0, 0);
     }
 
-    // Initialize the autonomous data for this frame
-    ArrayList<Double> data = new ArrayList<Double>();
-
-    data.add(m_drive.m_controller.getLeftY()); // Robot forward
-    data.add(m_drive.m_controller.getLeftX()); // Robot rotation
-    data.add(m_drive.m_controller.getRightY()); // Arm rotation
-    data.add((double) m_drive.m_controller.getPOV()); // Arm length
-
-    // Push the data
-    m_actions.add(data);
-
-    m_encoders.pushPeriodic();
   }
 
-  // Autonomous Mode
   @Override
-  public void autonomousPeriodic() {
-    try {
-      if (index == m_actions.size() - 1) {
-        // Reached the end, let's loop!
-        index = 0;
-      } else {
-        // Drive functionality
-        if (Math.abs(-m_actions.get(index).get(0)) < .3) {
-          double joystickX = -m_actions.get(index).get(1);
-          // Rotation mode
-          if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
-            m_drive.toggleDrive(0, joystickX);
-          } else {
-            m_drive.toggleDrive(joystickX, 0);
-          }
-        } else {
-          // Forward mode
-          m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
-        }
-
-        // Arm rotation
-        double armSpeed = Math.max(Math.min(m_actions.get(index).get(2), 0.6), -0.6);
-        m_arm.setOrientation(armSpeed);
-
-        // Arm length
-        if (m_actions.get(index).get(3) == 0) {
-          m_arm.setLength(.6);
-        } else if (m_actions.get(index).get(3) == 180) {
-          m_arm.setLength(-.6);
-        } else {
-          m_arm.setLength(0);
-        }
-
-        index++;
-      }
-    } catch (Exception e) {
-      index = 0;
-    }
+  public void testInit() {
+    // Cancels all running commands at the start of test mode.
+    CommandScheduler.getInstance().cancelAll();
   }
+
+  /** This function is called periodically during test mode. */
+  @Override
+  public void testPeriodic() {}
 }
