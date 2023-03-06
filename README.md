@@ -7,5 +7,5 @@ Nyahiito Development
 </p>
 
 <p align="center">
-Development branch for Akky's use on his FRC virtual machine setup
+Development branch for Akky's use on his FRC virtual machine setup. Never merge this to master
 </p>
