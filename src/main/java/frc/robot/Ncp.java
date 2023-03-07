@@ -22,7 +22,7 @@ public class Ncp {
         // ? The client and server should be connected to the radio network for successful routine.
         try {
             ncpFactory = new WebSocketFactory();
-            ncpWebSocket = ncpFactory.createSocket(ncpServerURL, 5000);
+            ncpWebSocket = ncpFactory.createSocket(ncpServerURL, 1000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,13 +38,15 @@ public class Ncp {
 
                     // ? NCP Protocol: Websocket messages get sent from the control panel, to the Node server, and finally to this code.
                     // ? Messages are in the JSON format where all data is in the core object.
-
+                    
                     // Obtain variables and push changes
                     JsonObject varsObject = rootObject.getAsJsonObject("Variables");
                     Constants.armSpeed = varsObject.get("Arm Speed").getAsDouble();
                     Constants.armLengthOutPOV = varsObject.get("Arm Out POV").getAsInt();
                     Constants.armLengthInPOV = varsObject.get("Arm In POV").getAsInt();
                     Constants.joystickDriftSafety = varsObject.get("Joystick Drift").getAsDouble();
+
+                    log("Updated successfully.");
                 }
             });
 
@@ -83,6 +85,7 @@ public class Ncp {
         ncpWebSocket.sendText(json.toString());
 
         // Flush pending console logs
+        // ! Messages aren't being sent due to empty logs, fix this
         ncpLogs.clear();
     }
 
