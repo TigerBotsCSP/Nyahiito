@@ -5,20 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
+import com.google.gson.*;
 import java.io.*;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
   Arm m_arm = new Arm();
   Limelight m_limeLight = new Limelight();
-  Encoders m_encoders = new Encoders();
-
-  Field2d m_field = new Field2d();
+  Ncp m_ncp = new Ncp();
 
   ArrayList<ArrayList<Double>> m_actions = new ArrayList<>(3);
   int index = 0;
@@ -26,34 +22,31 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_limeLight.startLimelight();
+    m_ncp.core();
   }
 
   @Override
   public void teleopInit() {
-    if (true) {
-      Gson gson = new Gson();
+    Gson gson = new Gson();
 
-      try (BufferedReader br = new BufferedReader(new FileReader("/home/lvuser/p_0.json"))) {
-        String line;
-        while ((line = br.readLine()) != null) {
-          ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-          m_actions.add(row);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
+    try (BufferedReader br = new BufferedReader(new FileReader("/home/lvuser/p_0.json"))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
+        m_actions.add(row);
       }
-
-      System.out.println("Autonomous loaded, have fun!");
-    } else {
-      m_actions.clear();
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+
+    System.out.println("Autonomous loaded, have fun!");
   }
 
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
     // Drive functionality
-    if (Math.abs(m_drive.m_controller.getLeftY()) < .3) {
+    if (Math.abs(m_drive.m_controller.getLeftY()) < Constants.joystickDriftSafety) {
       double joystickX = m_drive.m_controller.getLeftX();
       // Rotation mode
       if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
@@ -67,14 +60,14 @@ public class Robot extends TimedRobot {
     }
 
     // Arm rotation
-    double armSpeed = Math.max(Math.min(m_drive.m_controller.getRightY(), 0.6), -0.6);
+    double armSpeed = Math.max(Math.min(m_drive.m_controller.getRightY(), Constants.armSpeed), -Constants.armSpeed);
     m_arm.setOrientation(armSpeed);
 
     // Arm length
     if (m_drive.m_controller.getPOV() == 0) {
-      m_arm.setLength(.6);
+      m_arm.setLength(Constants.armSpeed);
     } else if (m_drive.m_controller.getPOV() == 180) {
-      m_arm.setLength(-.6);
+      m_arm.setLength(-Constants.armSpeed);
     } else {
       m_arm.setLength(0);
     }
@@ -97,7 +90,8 @@ public class Robot extends TimedRobot {
     // Push the data
     m_actions.add(data);
 
-    m_encoders.pushPeriodic();
+    // * Lowest priority: NCP Publishing
+    m_ncp.publish();
   }
 
   // Autonomous Mode
@@ -109,7 +103,7 @@ public class Robot extends TimedRobot {
         index = 0;
       } else {
         // Drive functionality
-        if (Math.abs(-m_actions.get(index).get(0)) < .3) {
+        if (Math.abs(-m_actions.get(index).get(0)) < Constants.joystickDriftSafety) {
           double joystickX = -m_actions.get(index).get(1);
           // Rotation mode
           if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
@@ -123,18 +117,17 @@ public class Robot extends TimedRobot {
         }
 
         // Arm rotation
-        double armSpeed = Math.max(Math.min(m_actions.get(index).get(2), 0.6), -0.6);
+        double armSpeed = Math.max(Math.min(m_actions.get(index).get(2), Constants.armSpeed), -Constants.armSpeed);
         m_arm.setOrientation(armSpeed);
 
         // Arm length
-        if (m_actions.get(index).get(3) == 0) {
-          m_arm.setLength(.6);
-        } else if (m_actions.get(index).get(3) == 180) {
-          m_arm.setLength(-.6);
+        if (m_actions.get(index).get(3) == Constants.armLengthOutPOV) {
+          m_arm.setLength(Constants.armSpeed);
+        } else if (m_actions.get(index).get(3) == Constants.armLengthInPOV) {
+          m_arm.setLength(-Constants.armSpeed);
         } else {
           m_arm.setLength(0);
         }
-
         index++;
       }
     } catch (Exception e) {

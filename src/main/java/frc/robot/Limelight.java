@@ -25,9 +25,8 @@ public class Limelight {
                 public void onTextMessage(WebSocket websocket, String message) throws Exception {
                     // New message, clear 'em out
                     m_detectedTags.clear();
-
-                    JsonParser parser = new JsonParser();
-                    JsonObject rootObject = parser.parse(message).getAsJsonObject();
+                    
+                    JsonObject rootObject = JsonParser.parseString(message).getAsJsonObject();
 
                     JsonArray tagsArray = rootObject.getAsJsonObject("Results").getAsJsonArray("Fiducial");
 
