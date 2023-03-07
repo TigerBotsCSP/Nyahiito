@@ -7,5 +7,10 @@ Nyahiito Development
 </p>
 
 <p align="center">
-Development branch for Akky's use on his FRC virtual machine setup. Never merge this to master
+Development branch for Akky's use on his FRC virtual machine setup. Currently, there is the Nyahiito Control Panel in its POC spot. This panel allows for efficient debugging of the robot's cores, autonomous pathways, variables, and more.
+<br><br>
+<b>Server:</b> Completed<br>
+<b>Client Website:</b> WIP, basics completed<br>
+<b>Robot Code:</b> WIP, basics such as connection and recieving/publishing completed
+</b>
 </p>
