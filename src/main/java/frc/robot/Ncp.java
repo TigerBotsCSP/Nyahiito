@@ -18,8 +18,10 @@ public class Ncp {
     ArrayList<String> ncpLogs = new ArrayList<>();
 
     Ncp() {
-        // ? NCP uses websockets for fast communication between the client, the server, and the robot.
-        // ? The client and server should be connected to the radio network for successful routine.
+        // ? NCP uses websockets for fast communication between the client, the server,
+        // and the robot.
+        // ? The client and server should be connected to the radio network for
+        // successful routine.
         try {
             ncpFactory = new WebSocketFactory();
             ncpWebSocket = ncpFactory.createSocket(ncpServerURL, 1000);
@@ -28,7 +30,8 @@ public class Ncp {
         }
     }
 
-    // ! Nyahiito Control Panel: Core function, handles initial connection and messages
+    // ! Nyahiito Control Panel: Core function, handles initial connection and
+    // messages
     public void core() {
         try {
             ncpWebSocket.addListener(new WebSocketAdapter() {
@@ -36,17 +39,25 @@ public class Ncp {
                 public void onTextMessage(WebSocket websocket, String message) throws Exception {
                     JsonObject rootObject = JsonParser.parseString(message).getAsJsonObject();
 
-                    // ? NCP Protocol: Websocket messages get sent from the control panel, to the Node server, and finally to this code.
-                    // ? Messages are in the JSON format where all data is in the core object.
-                    
-                    // Obtain variables and push changes
-                    JsonObject varsObject = rootObject.getAsJsonObject("Variables");
-                    Constants.armSpeed = varsObject.get("Arm Speed").getAsDouble();
-                    Constants.armLengthOutPOV = varsObject.get("Arm Out POV").getAsInt();
-                    Constants.armLengthInPOV = varsObject.get("Arm In POV").getAsInt();
-                    Constants.joystickDriftSafety = varsObject.get("Joystick Drift").getAsDouble();
+                    // ? Execute Request: If the message is one, execute a command.
+                    // ! Be careful executing commands, Dwayne! Not sure if you know how to type though
+                    if (rootObject.has("Execute")) {
+                        String command = rootObject.getAsJsonObject("Execute").getAsString();
+                        log(command);
+                        exec(command);
+                    } else {
+                        // * NCP Protocol: Websocket messages get sent from the control panel, to the Node server, and finally to this code.
+                        // ? Messages are in the JSON format where all data is in the core object.
 
-                    log("Updated successfully.");
+                        // Obtain variables and push changes
+                        JsonObject varsObject = rootObject.getAsJsonObject("Variables");
+                        Constants.armSpeed = varsObject.get("Arm Speed").getAsDouble();
+                        Constants.armLengthOutPOV = varsObject.get("Arm Out POV").getAsInt();
+                        Constants.armLengthInPOV = varsObject.get("Arm In POV").getAsInt();
+                        Constants.joystickDriftSafety = varsObject.get("Joystick Drift").getAsDouble();
+
+                        log("Updated successfully.");
+                    }
                 }
             });
 
@@ -64,12 +75,6 @@ public class Ncp {
         // Create the main JSON Object
         JsonObject json = new JsonObject();
 
-        // Create the logs array with all messages
-        JsonArray logsArray = new JsonArray();
-        for (String log : ncpLogs) {
-            logsArray.add(log);
-        }
-
         // Create the variables object with its values
         JsonObject varsObject = new JsonObject();
         varsObject.addProperty("Arm Speed", Constants.armSpeed);
@@ -78,18 +83,24 @@ public class Ncp {
         varsObject.addProperty("Joystick Drift", Constants.joystickDriftSafety);
 
         // Add all child objects
-        json.add("Logs", logsArray);
         json.add("Variables", varsObject);
 
-        // Send the JSON as a String
+        // ? Normal Publish: Send the normal data for the client
         ncpWebSocket.sendText(json.toString());
-
-        // Flush pending console logs
-        // ! Messages aren't being sent due to empty logs, fix this
-        ncpLogs.clear();
     }
 
     public void log(String message) {
-        ncpLogs.add(message);
+        // ? Log Publish: Send a message to display in the client's terminal
+        ncpWebSocket.sendText("{\"Log\":\"" + message + "\"}");
+    }
+
+    // ! Don't pull a sudo rm -rf /
+    public void exec(String cmd) {
+        try {
+            // TODO: Test this, doesn't work with Windows simulation
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
