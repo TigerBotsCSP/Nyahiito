@@ -16,9 +16,6 @@ public class Robot extends TimedRobot {
   Limelight m_limeLight = new Limelight();
   Ncp m_ncp = new Ncp();
 
-  ArrayList<ArrayList<Double>> m_actions = new ArrayList<>(3);
-  int index = 0;
-
   @Override
   public void robotInit() {
     m_limeLight.startLimelight();
@@ -33,7 +30,7 @@ public class Robot extends TimedRobot {
       String line;
       while ((line = br.readLine()) != null) {
         ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-        m_actions.add(row);
+        m_ncp.apsActions.add(row);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -79,16 +76,19 @@ public class Robot extends TimedRobot {
       m_drive.toggleDrive(0, 0);
     }
 
-    // Initialize the autonomous data for this frame
-    ArrayList<Double> data = new ArrayList<Double>();
+    // * APS: Recording
+    if (m_ncp.apsRecording) {
+      // Initialize the autonomous data for this frame
+      ArrayList<Double> data = new ArrayList<Double>();
 
-    data.add(m_drive.m_controller.getLeftY()); // Robot forward
-    data.add(m_drive.m_controller.getLeftX()); // Robot rotation
-    data.add(m_drive.m_controller.getRightY()); // Arm rotation
-    data.add((double) m_drive.m_controller.getPOV()); // Arm length
+      data.add(m_drive.m_controller.getLeftY()); // Robot forward
+      data.add(m_drive.m_controller.getLeftX()); // Robot rotation
+      data.add(m_drive.m_controller.getRightY()); // Arm rotation
+      data.add((double) m_drive.m_controller.getPOV()); // Arm length
 
-    // Push the data
-    m_actions.add(data);
+      // Push the data
+      m_ncp.apsActions.add(data);
+    }
 
     // * Lowest priority: NCP Publishing
     m_ncp.publish();
@@ -97,14 +97,16 @@ public class Robot extends TimedRobot {
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
+    if (m_ncp.apsPlaying) return;
+    
     try {
-      if (index == m_actions.size() - 1) {
+      if (m_ncp.apsIndex == m_ncp.apsActions.size() - 1) {
         // Reached the end, let's loop!
-        index = 0;
+        m_ncp.apsIndex = 0;
       } else {
         // Drive functionality
-        if (Math.abs(-m_actions.get(index).get(0)) < Constants.joystickDriftSafety) {
-          double joystickX = -m_actions.get(index).get(1);
+        if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < Constants.joystickDriftSafety) {
+          double joystickX = -m_ncp.apsActions.get(m_ncp.apsIndex).get(1);
           // Rotation mode
           if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
             m_drive.toggleDrive(0, joystickX);
@@ -113,25 +115,27 @@ public class Robot extends TimedRobot {
           }
         } else {
           // Forward mode
-          m_drive.toggleDrive(-m_actions.get(index).get(0), m_actions.get(index).get(0));
+          m_drive.toggleDrive(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0),
+              m_ncp.apsActions.get(m_ncp.apsIndex).get(0));
         }
 
         // Arm rotation
-        double armSpeed = Math.max(Math.min(m_actions.get(index).get(2), Constants.armSpeed), -Constants.armSpeed);
+        double armSpeed = Math.max(Math.min(m_ncp.apsActions.get(m_ncp.apsIndex).get(2), Constants.armSpeed),
+            -Constants.armSpeed);
         m_arm.setOrientation(armSpeed);
 
         // Arm length
-        if (m_actions.get(index).get(3) == Constants.armLengthOutPOV) {
+        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(3) == Constants.armLengthOutPOV) {
           m_arm.setLength(Constants.armSpeed);
-        } else if (m_actions.get(index).get(3) == Constants.armLengthInPOV) {
+        } else if (m_ncp.apsActions.get(m_ncp.apsIndex).get(3) == Constants.armLengthInPOV) {
           m_arm.setLength(-Constants.armSpeed);
         } else {
           m_arm.setLength(0);
         }
-        index++;
+        m_ncp.apsIndex++;
       }
     } catch (Exception e) {
-      index = 0;
+      m_ncp.apsIndex = 0;
     }
   }
 }

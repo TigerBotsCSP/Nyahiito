@@ -55,4 +55,8 @@ public class Limelight {
     public boolean tagDetected(int tag) {
         return m_detectedTags.contains(tag);
     }
+
+    public ArrayList<Integer> getDetectedTags() {
+        return m_detectedTags;
+    }
 }
