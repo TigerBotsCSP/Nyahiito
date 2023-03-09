@@ -50,8 +50,7 @@ public class Robot extends TimedRobot {
     // ! Not an efficient debounce, recreate this
     if (intakeDebounce) {
       loops++;
-      // System.err.println(loops);
-      if (loops > 50) {
+      if (loops > 25) {
         intakeDebounce = false;
         loops = 0;
       }

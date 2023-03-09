@@ -15,6 +15,7 @@ import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
@@ -122,6 +123,9 @@ public class Ncp {
         // Set the mode, assuming the *test* mode is irrelevant
         String mode = RobotState.isTeleop() ? "teleop" : RobotState.isAutonomous() ? "auto" : "off";
         json.addProperty("Mode", mode);
+        
+        // Set battery voltage
+        json.addProperty("Voltage", RobotController.getBatteryVoltage());
 
         // Create the variables object with its values
         JsonObject varsObject = new JsonObject();
@@ -203,6 +207,7 @@ public class Ncp {
                 String json = gson.toJson(apsActions);
 
                 try {
+                    // Robot: Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
                     Files.write(Paths.get("C:\\Users\\Admin\\Desktop\\Nyahiito\\" + id + ".json"), json.getBytes());
                 } catch (IOException e) {
                     e.printStackTrace();
