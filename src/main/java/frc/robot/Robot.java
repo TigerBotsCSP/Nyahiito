@@ -49,9 +49,27 @@ public class Robot extends TimedRobot {
     }
   }
 
+  // ! Part of the inefficient intaker debounce
+  float loops = 0;
+  boolean intakeDebounce = false;
+
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
+    // * Intaker debounce
+    // ! Not an efficient debounce, recreate this
+    if (intakeDebounce) {
+      loops++;
+      //System.err.println(loops);
+      if (loops > 50) {
+        intakeDebounce = false;
+        loops = 0;
+      }
+    } else if (m_drive.m_controller.getBButton()) {
+      intakeDebounce = true;
+      m_arm.toggleIntaker();
+    }
+
     // Drive functionality
     if (Math.abs(m_drive.m_controller.getLeftY()) < .3) {
       double joystickX = m_drive.m_controller.getLeftX();
@@ -78,7 +96,7 @@ public class Robot extends TimedRobot {
     } else {
       m_arm.setLength(0);
     }
-
+  
     // Emergency stop
     if (m_drive.m_controller.getBackButton()) {
       m_arm.setOrientation(0);
