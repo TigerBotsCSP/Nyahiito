@@ -1,12 +1,15 @@
 package frc.robot;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.google.gson.*;
-
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -25,6 +28,7 @@ public class Ncp {
     // * APS Variables
     boolean apsRecording = false;
     boolean apsPlaying = false;
+    boolean apsHasSaved = false;
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
     int apsIndex = 0;
 
@@ -43,7 +47,8 @@ public class Ncp {
         }
     }
 
-    // ! Nyahiito Control Panel: Core function, handles initial connection and messages
+    // ! Nyahiito Control Panel: Core function, handles initial connection and
+    // messages
     public void core() {
         try {
             ncpWebSocket.addListener(new WebSocketAdapter() {
@@ -85,9 +90,16 @@ public class Ncp {
 
                         // Detect APS
                         if (rootObject.has("Pathway System")) {
-                            log("Mode set.");
                             String apsOption = rootObject.get("Pathway System").getAsString();
                             aps(apsOption);
+                        }
+
+                        // Detect APL
+                        if (rootObject.has("Pathway Loading")) {
+                            String aplPath = rootObject.get("Pathway Loading").getAsString();
+                            if (aplPath != "") {
+                                apl(aplPath);
+                            }
                         }
                     }
                 }
@@ -135,7 +147,7 @@ public class Ncp {
     // ? Overload for sending in AprilTag data
     public void publish(ArrayList<Integer> aprilTags) {
         ncpAprilTags = aprilTags;
-        publish(); 
+        publish();
     }
 
     public void log(String message) {
@@ -176,10 +188,28 @@ public class Ncp {
             apsActions.clear();
             apsRecording = false;
             apsPlaying = false;
+            apsHasSaved = false;
         } else if (mode == "stop") {
             apsRecording = false;
             apsPlaying = false;
         } else if (mode == "play") {
+            if (!apsHasSaved) {
+
+                // Playing will also officially save the file
+                String id = String.format("%04d", new Random().nextInt(10000));
+
+                // Convert to JSON string then save
+                Gson gson = new GsonBuilder().create();
+                String json = gson.toJson(apsActions);
+
+                try {
+                    Files.write(Paths.get("C:\\Users\\Admin\\Desktop\\Nyahiito\\" + id + ".json"), json.getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                apsHasSaved = true;
+            }
+
             apsPlaying = true;
         } else {
             // "record"
@@ -187,10 +217,27 @@ public class Ncp {
         }
     }
 
-    // TODO: Pathway Loading. Find the JSON file in /home/lvuser, load it into an ArrayList, then start recording!
+    // TODO: Pathway Loading. Find the JSON file in /home/lvuser, load it into an
+    // ArrayList, then start recording!
     public void apl(String path) {
+        // Is this a real path?
+        if (!new File(path).exists()) {
+            return;
+        }
+
         apsActions.clear();
-        
+
+        try {
+            // Load file into a String
+            String pathData = new String(Files.readAllBytes(Paths.get(path)));
+            Gson gson = new Gson();
+
+            // Put the actions into the Array
+            apsActions = gson.fromJson(pathData, ArrayList.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         apsPlaying = true;
     }
 }

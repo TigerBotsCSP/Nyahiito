@@ -39,9 +39,27 @@ public class Robot extends TimedRobot {
     System.out.println("Autonomous loaded, have fun!");
   }
 
+  // ! Part of the inefficient intaker debounce
+  float loops = 0;
+  boolean intakeDebounce = false;
+
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
+    // * Intaker debounce
+    // ! Not an efficient debounce, recreate this
+    if (intakeDebounce) {
+      loops++;
+      // System.err.println(loops);
+      if (loops > 50) {
+        intakeDebounce = false;
+        loops = 0;
+      }
+    } else if (m_drive.m_controller.getBButton()) {
+      intakeDebounce = true;
+      m_arm.toggleIntaker();
+    }
+
     // Drive functionality
     if (Math.abs(m_drive.m_controller.getLeftY()) < Constants.joystickDriftSafety) {
       double joystickX = m_drive.m_controller.getLeftX();
@@ -91,14 +109,15 @@ public class Robot extends TimedRobot {
     }
 
     // * Lowest priority: NCP Publishing
-    m_ncp.publish();
+    m_ncp.publish(m_limeLight.getDetectedTags());
   }
 
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
-    if (m_ncp.apsPlaying) return;
-    
+    if (m_ncp.apsPlaying)
+      return;
+
     try {
       if (m_ncp.apsIndex == m_ncp.apsActions.size() - 1) {
         // Reached the end, let's loop!
