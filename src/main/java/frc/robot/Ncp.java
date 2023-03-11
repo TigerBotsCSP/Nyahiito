@@ -28,6 +28,7 @@ public class Ncp {
 
     // * APS Variables
     String apsMode = "stop";
+    boolean apsSaved = false;
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
     int apsIndex = 0;
 
@@ -193,21 +194,27 @@ public class Ncp {
             switch (apsMode) {
                 case "reset":
                     apsActions.clear();
+                    apsSaved = false;
                     break;
                 case "save":
-                    // Playing will also officially save the file
-                    String id = String.format("%04d", new Random().nextInt(10000));
+                    if (!apsSaved) {
+                        apsSaved = true;
+                        
+                        // Playing will also officially save the file
+                        String id = String.format("%04d", new Random().nextInt(10000));
 
-                    // Convert to JSON string then save
-                    Gson gson = new GsonBuilder().create();
-                    String json = gson.toJson(apsActions);
+                        // Convert to JSON string then save
+                        Gson gson = new GsonBuilder().create();
+                        String json = gson.toJson(apsActions);
 
-                    try {
-                        Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        try {
+                            Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        
+                        log("Saved path as " + id + ".json!");
                     }
-
                     break;
             }
         }
