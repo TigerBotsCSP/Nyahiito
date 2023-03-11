@@ -23,6 +23,11 @@ public class Robot extends TimedRobot {
   }
 
   @Override
+  public void robotPeriodic() {
+    //m_ncp.log(m_ncp.apsMode);
+  }
+
+  @Override
   public void teleopInit() {
     Gson gson = new Gson();
 
@@ -94,7 +99,7 @@ public class Robot extends TimedRobot {
     }
 
     // * APS: Recording
-    if (m_ncp.apsRecording) {
+    if (m_ncp.apsMode == "record") {
       // Initialize the autonomous data for this frame
       ArrayList<Double> data = new ArrayList<Double>();
 
@@ -114,14 +119,8 @@ public class Robot extends TimedRobot {
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
-    if (m_ncp.apsPlaying)
-      return;
-
-    try {
-      if (m_ncp.apsIndex == m_ncp.apsActions.size() - 1) {
-        // Reached the end, let's loop!
-        m_ncp.apsIndex = 0;
-      } else {
+    if (m_ncp.apsMode == "play") {
+      try {
         // Drive functionality
         if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < Constants.joystickDriftSafety) {
           double joystickX = -m_ncp.apsActions.get(m_ncp.apsIndex).get(1);
@@ -151,9 +150,9 @@ public class Robot extends TimedRobot {
           m_arm.setLength(0);
         }
         m_ncp.apsIndex++;
+      } catch (Exception e) {
+        m_ncp.apsIndex = 0;
       }
-    } catch (Exception e) {
-      m_ncp.apsIndex = 0;
     }
   }
 }

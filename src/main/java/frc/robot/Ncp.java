@@ -27,9 +27,7 @@ public class Ncp {
     ArrayList<String> ncpLogs = new ArrayList<>();
 
     // * APS Variables
-    boolean apsRecording = false;
-    boolean apsPlaying = false;
-    boolean apsHasSaved = false;
+    String apsMode = "stop";
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
     int apsIndex = 0;
 
@@ -123,9 +121,9 @@ public class Ncp {
         // Set the mode, assuming the *test* mode is irrelevant
         String mode = RobotState.isTeleop() ? "teleop" : RobotState.isAutonomous() ? "auto" : "off";
         json.addProperty("Mode", mode);
-        
+
         // Set battery voltage
-        json.addProperty("Voltage", RobotController.getBatteryVoltage());
+        json.addProperty("Voltage", (Double) RobotController.getBatteryVoltage());
 
         // Create the variables object with its values
         JsonObject varsObject = new JsonObject();
@@ -166,7 +164,7 @@ public class Ncp {
     public void exec(String cmd) {
         try {
             // * For the actual robot, it's { "/bin/sh", "-c", cmd }
-            Process proc = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", cmd });
+            Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmd });
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
@@ -187,42 +185,34 @@ public class Ncp {
 
     // * Pathway Functions
     public void aps(String mode) {
-        // Switch function looking real good right now
-        if (mode == "reset") {
-            apsActions.clear();
-            apsRecording = false;
-            apsPlaying = false;
-            apsHasSaved = false;
-        } else if (mode == "stop") {
-            apsRecording = false;
-            apsPlaying = false;
-        } else if (mode == "play") {
-            if (!apsHasSaved) {
+        if (!mode.equals(apsMode)) {
+            log(apsMode);
 
-                // Playing will also officially save the file
-                String id = String.format("%04d", new Random().nextInt(10000));
+            apsMode = mode;
 
-                // Convert to JSON string then save
-                Gson gson = new GsonBuilder().create();
-                String json = gson.toJson(apsActions);
+            switch (apsMode) {
+                case "reset":
+                    apsActions.clear();
+                    break;
+                case "save":
+                    // Playing will also officially save the file
+                    String id = String.format("%04d", new Random().nextInt(10000));
 
-                try {
-                    // Robot: Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
-                    Files.write(Paths.get("C:\\Users\\Admin\\Desktop\\Nyahiito\\" + id + ".json"), json.getBytes());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                apsHasSaved = true;
+                    // Convert to JSON string then save
+                    Gson gson = new GsonBuilder().create();
+                    String json = gson.toJson(apsActions);
+
+                    try {
+                        Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
             }
-
-            apsPlaying = true;
-        } else {
-            // "record"
-            apsRecording = true;
         }
     }
 
-    // TODO: Pathway Loading. Find the JSON file in /home/lvuser, load it into an
     // ArrayList, then start recording!
     public void apl(String path) {
         // Is this a real path?
@@ -243,6 +233,6 @@ public class Ncp {
             e.printStackTrace();
         }
 
-        apsPlaying = true;
+        apsMode = "play";
     }
 }
