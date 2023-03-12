@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
     }
 
     // * APS: Recording
-    if (m_ncp.apsMode == "record") {
+    if (m_ncp.apsMode.equals("record")) {
       // Initialize the autonomous data for this frame
       ArrayList<Double> data = new ArrayList<Double>();
 
@@ -107,6 +107,7 @@ public class Robot extends TimedRobot {
       data.add(m_drive.m_controller.getLeftX()); // Robot rotation
       data.add(m_drive.m_controller.getRightY()); // Arm rotation
       data.add((double) m_drive.m_controller.getPOV()); // Arm length
+      data.add(m_drive.m_controller.getBButton() && !intakeDebounce ? 1.0 : 0.0); // Intaker
 
       // Push the data
       m_ncp.apsActions.add(data);
@@ -119,8 +120,12 @@ public class Robot extends TimedRobot {
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
-    if (m_ncp.apsMode == "play") {
+    if (m_ncp.apsMode.equals("play")) {
       try {
+        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 1) {
+          m_arm.toggleIntaker();
+        }
+        
         // Drive functionality
         if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < Constants.joystickDriftSafety) {
           double joystickX = -m_ncp.apsActions.get(m_ncp.apsIndex).get(1);

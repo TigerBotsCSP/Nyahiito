@@ -17,8 +17,8 @@ public class Arm {
     Arm() {
         m_solenoidOne = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
         m_solenoidTwo = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3);
-        m_armLength = new PWMSparkMax(5);
-        m_armRotation = new PWMSparkMax(4);
+        m_armLength = new PWMSparkMax(4);
+        m_armRotation = new PWMSparkMax(5);
     }
 
     public void toggleIntaker() {

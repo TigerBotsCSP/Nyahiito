@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 public class Ncp {
     // * Variables
-    String ncpServerURL = "ws://localhost:9072/v1/client";
+    String ncpServerURL = "ws://10.90.72.221:9072/v1/client";
     WebSocketFactory ncpFactory;
     WebSocket ncpWebSocket;
     ArrayList<String> ncpLogs = new ArrayList<>();
@@ -32,7 +32,7 @@ public class Ncp {
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
     int apsIndex = 0;
 
-    private ArrayList<Integer> ncpAprilTags = new ArrayList<>();
+    private ArrayList<Integer> ncpAprilTags = new ArrayList<>(3);
 
     Ncp() {
         // ? NCP uses websockets for fast communication between the client, the server,
@@ -97,7 +97,7 @@ public class Ncp {
                         // Detect APL
                         if (rootObject.has("Pathway Loading")) {
                             String aplPath = rootObject.get("Pathway Loading").getAsString();
-                            if (aplPath != "") {
+                            if (!aplPath.equals("")) {
                                 apl(aplPath);
                             }
                         }
@@ -165,7 +165,7 @@ public class Ncp {
     public void exec(String cmd) {
         try {
             // * For the actual robot, it's { "/bin/sh", "-c", cmd }
-            Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmd });
+            Process proc = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "cd /home/lvuser && " + cmd });
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
@@ -187,9 +187,9 @@ public class Ncp {
     // * Pathway Functions
     public void aps(String mode) {
         if (!mode.equals(apsMode)) {
-            log(apsMode);
-
             apsMode = mode;
+
+            log(apsMode);
 
             switch (apsMode) {
                 case "reset":
@@ -205,7 +205,7 @@ public class Ncp {
 
                         // Convert to JSON string then save
                         Gson gson = new GsonBuilder().create();
-                        String json = gson.toJson(apsActions);
+                        String json = gson.toJson(apsActions, ArrayList.class);
 
                         try {
                             Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
@@ -214,6 +214,8 @@ public class Ncp {
                         }
                         
                         log("Saved path as " + id + ".json!");
+                    } else {
+                        log("Path's already saved broski");
                     }
                     break;
             }
@@ -236,8 +238,9 @@ public class Ncp {
 
             // Put the actions into the Array
             apsActions = gson.fromJson(pathData, ArrayList.class);
+
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();        
         }
 
         apsMode = "play";
