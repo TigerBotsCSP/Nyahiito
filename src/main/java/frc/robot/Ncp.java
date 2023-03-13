@@ -1,7 +1,6 @@
 package frc.robot;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -28,7 +27,9 @@ public class Ncp {
 
     // * APS Variables
     String apsMode = "stop";
+    String apsPrevPath = "";
     boolean apsSaved = false;
+    boolean apsLoaded = false;
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
     int apsIndex = 0;
 
@@ -191,11 +192,10 @@ public class Ncp {
         if (!mode.equals(apsMode)) {
             apsMode = mode;
 
-            log(apsMode);
-
             switch (apsMode) {
                 case "reset":
                     apsActions.clear();
+                    apsLoaded = false;
                     apsSaved = false;
                     break;
                 case "save":
@@ -226,10 +226,8 @@ public class Ncp {
 
     // ArrayList, then start recording!
     public void apl(String path) {
-        System.out.println("what");
         // Is this a real path?
-        if (!new File(path).exists()) {
-            System.out.println("ret");
+        if (apsLoaded) {
             return;
         }
 
@@ -243,12 +241,14 @@ public class Ncp {
             // Put the actions into the Array
             apsActions = gson.fromJson(pathData, ArrayList.class);
 
-            System.out.println("done");
+            log("Path loaded, have fun.");
 
         } catch (IOException e) {
+            log("Path doesn't exist!");
             e.printStackTrace();
         }
 
+        apsLoaded = true;
         apsMode = "play";
     }
 }

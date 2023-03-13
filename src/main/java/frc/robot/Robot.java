@@ -11,14 +11,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.google.gson.*;
-import java.io.*;
-
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
   Arm m_arm = new Arm();
   Limelight m_limeLight = new Limelight();
   Ncp m_ncp = new Ncp();
+
+  // * Timer variables ~ Testing
+  Timer m_timer = new Timer();
+  double prevLoopTime = 0;
+  double avgLoopTime = 0;
+  int loopCount = 0;
 
   @Override
   public void robotInit() {
@@ -31,23 +34,6 @@ public class Robot extends TimedRobot {
     // m_ncp.log(m_ncp.apsMode);
   }
 
-  @Override
-  public void teleopInit() {
-    Gson gson = new Gson();
-
-    try (BufferedReader br = new BufferedReader(new FileReader("/home/lvuser/p_0.json"))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        ArrayList<Double> row = gson.fromJson(line, ArrayList.class);
-        m_ncp.apsActions.add(row);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    System.out.println("Autonomous loaded, have fun!");
-  }
-
   // ! Part of the inefficient intaker debounce
   float loops = 0;
   boolean intakeDebounce = false;
@@ -55,6 +41,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
+    m_timer.start();
     // * Intaker debounce
     // ! Not an efficient debounce, recreate this
     if (intakeDebounce) {
@@ -122,6 +109,16 @@ public class Robot extends TimedRobot {
 
     // * Lowest priority: NCP Publishing
     m_ncp.publish(m_limeLight.getDetectedTags());
+
+    // * Timer Testing
+    long currentLoop = System.currentTimeMillis();
+    double loopTime = currentLoop - prevLoopTime;
+    prevLoopTime = currentLoop;
+
+    avgLoopTime = (loopTime + (loopCount * avgLoopTime));
+    loopCount++;
+
+    System.out.println("Loop MS: " + avgLoopTime);
   }
 
   // ! Part of the inefficient intaker debounce
@@ -139,28 +136,29 @@ public class Robot extends TimedRobot {
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
-    while (true) {
-      boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(1, 3, 6, 8));
-      if (tagsSide) {
-        m_ncp.apl("/home/lvuser/path_sides.json");
-        break;
-      } else if (!Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(2, 7))) {
-        // Middle
-        m_ncp.apl("/home/lvuser/path_middle.json");
-        break;
+    if (!m_ncp.apsLoaded) {
+      while (true) {
+        boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(1, 3, 6, 8));
+        if (tagsSide) {
+          m_ncp.apl("/home/lvuser/path_sides.json");
+          break;
+        } else if (!Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(2, 7))) {
+          // Middle
+          m_ncp.apl("/home/lvuser/path_middle.json");
+          break;
+        }
+  
+        // ! Pathway Roulette: After five seconds of no detection, put a cone in and pray.
+        if (Timer.getFPGATimestamp() - startTime > 3) {
+          m_ncp.apl("/home/lvuser/path_sides.json");
+          break;
+        }
+  
+        Timer.delay(.15);
       }
-
-      // ! Pathway Roulette: After five seconds of no detection, put a cone in and pray.
-      if (Timer.getFPGATimestamp() - startTime > 5) {
-        m_ncp.apl("/home/lvuser/path_middle.json");
-        break;
-      }
-
-      Timer.delay(.15);
     }
 
-    // * Better off removing the if statement
-    if (m_ncp.apsMode.equals("play")) {
+    if (true) {
       try {
         // * Intaker debounce
         // ! Not an efficient debounce, recreate this
@@ -176,7 +174,7 @@ public class Robot extends TimedRobot {
         }
 
         // Drive functionality
-        if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < Constants.joystickDriftSafety) {
+        if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < .3) {
           double joystickX = -m_ncp.apsActions.get(m_ncp.apsIndex).get(1);
           // Rotation mode
           if (Math.abs(joystickX - (-1)) < Math.abs(joystickX - 1)) {
