@@ -1,6 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -20,20 +22,19 @@ public class Drive {
     
     public XboxController m_controller;
     public Joystick m_joystick;
-
+    
     Drive() {
-        m_frontLeft = new PWMSparkMax(0);
-        m_rearLeft = new PWMSparkMax(1);
+        m_frontLeft = new PWMSparkMax(2);
+        m_rearLeft = new PWMSparkMax(3);
         m_left = new MotorControllerGroup(m_frontLeft, m_rearLeft);
         
-        m_frontRight = new PWMSparkMax(2);
-        m_rearRight = new PWMSparkMax(3);
+        m_frontRight = new PWMSparkMax(4);
+        m_rearRight = new PWMSparkMax(5);
         m_right = new MotorControllerGroup(m_frontRight, m_rearRight);
       
         m_drive = new DifferentialDrive(m_left, m_right);
         
         m_controller = new XboxController(0);
-        m_joystick = new Joystick(1);
     }
     
     public void toggleDrive(boolean oneStickMode) {

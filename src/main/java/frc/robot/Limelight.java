@@ -2,10 +2,12 @@ package frc.robot;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
 
 import com.google.gson.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Limelight {
@@ -13,37 +15,41 @@ public class Limelight {
     WebSocket m_webSocket;
     ArrayList<Integer> m_detectedTags = new ArrayList<Integer>();
 
-    public void startLimelight() {
+    private void Limelightx() {
         m_factory = new WebSocketFactory();
-
-        while (true) {
-            try {
-                m_webSocket = m_factory.createSocket("ws://limelight.local:5806");
-                m_webSocket.connect();
-                break; // Exit loop once successful
-            } catch (Exception e) {
-                System.out.println("Failed to connect to WebSocket: " + e.getMessage() + " | Retrying...");
-            }
-        }
+        try {
+            m_webSocket = m_factory.createSocket("ws://limelight.local:5806", 5000);
+            
+            m_webSocket.addListener(new WebSocketAdapter() {
+                @Override
+                public void onTextMessage(WebSocket websocket, String message) throws Exception {
+                    // New message, clear 'em out
+                    m_detectedTags.clear();
                     
-        m_webSocket.addListener(new WebSocketAdapter() {
-            @Override
-            public void onTextMessage(WebSocket websocket, String message) throws Exception {
-                // New message, clear 'em out
-                m_detectedTags.clear();
-                
-                JsonObject rootObject = JsonParser.parseString(message).getAsJsonObject();
+                    JsonObject rootObject = JsonParser.parseString(message).getAsJsonObject();
 
-                JsonArray tagsArray = rootObject.getAsJsonObject("Results").getAsJsonArray("Fiducial");
+                    JsonArray tagsArray = rootObject.getAsJsonObject("Results").getAsJsonArray("Fiducial");
 
-                if (tagsArray.isJsonNull() || tagsArray.isEmpty())
-                    return;
+                    if (tagsArray.isJsonNull() || tagsArray.isEmpty())
+                        return;
 
-                for (JsonElement tag : tagsArray) {
-                    m_detectedTags.add(tag.getAsJsonObject().get("fID").getAsInt());
+                    for (JsonElement tag : tagsArray) {
+                        m_detectedTags.add(tag.getAsJsonObject().get("fID").getAsInt());
+                    }
                 }
-            }
-        });
+            });
+
+            m_webSocket.connect();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WebSocketException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startLimelight() {
+        Limelightx();
     }
 
     public boolean tagDetected(int tag) {

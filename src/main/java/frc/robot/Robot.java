@@ -5,7 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import com.google.gson.*;
 import java.io.*;
@@ -24,7 +28,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    //m_ncp.log(m_ncp.apsMode);
+    // m_ncp.log(m_ncp.apsMode);
   }
 
   @Override
@@ -74,9 +78,12 @@ public class Robot extends TimedRobot {
         m_drive.toggleDrive(joystickX, 0);
       }
     } else {
-      // Forward mode
-      m_drive.toggleDrive(true);
+      double driveSpeed = Math.max(Math.min(m_drive.m_controller.getLeftY(), .8), -.8);
+      m_drive.toggleDrive(-driveSpeed, driveSpeed);
     }
+
+    // System.out.println("Distance: " + m_drive.m_encoder.getDistance());
+    // System.out.println("Rate: " + m_drive.m_encoder.getRate());
 
     // Arm rotation
     double armSpeed = Math.max(Math.min(m_drive.m_controller.getRightY(), Constants.armSpeed), -Constants.armSpeed);
@@ -107,7 +114,7 @@ public class Robot extends TimedRobot {
       data.add(m_drive.m_controller.getLeftX()); // Robot rotation
       data.add(m_drive.m_controller.getRightY()); // Arm rotation
       data.add((double) m_drive.m_controller.getPOV()); // Arm length
-      data.add(m_drive.m_controller.getBButton() && !intakeDebounce ? 1.0 : 0.0); // Intaker
+      data.add(m_drive.m_controller.getBButton() ? 1.0 : 0.0); // Intaker
 
       // Push the data
       m_ncp.apsActions.add(data);
@@ -117,15 +124,57 @@ public class Robot extends TimedRobot {
     m_ncp.publish(m_limeLight.getDetectedTags());
   }
 
+  // ! Part of the inefficient intaker debounce
+  float aloops = 0;
+  boolean aintakeDebounce = false;
+
+  // Autonomous Mode
+  private double startTime;
+
+  @Override
+  public void autonomousInit() {
+    startTime = Timer.getFPGATimestamp();
+  }
+
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
+    while (true) {
+      boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(1, 3, 6, 8));
+      if (tagsSide) {
+        m_ncp.apl("/home/lvuser/path_sides.json");
+        break;
+      } else if (!Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(2, 7))) {
+        // Middle
+        m_ncp.apl("/home/lvuser/path_middle.json");
+        break;
+      }
+
+      // ! Pathway Roulette: After five seconds of no detection, put a cone in and pray.
+      if (Timer.getFPGATimestamp() - startTime > 5) {
+        m_ncp.apl("/home/lvuser/path_middle.json");
+        break;
+      }
+
+      Timer.delay(.15);
+    }
+
+    // * Better off removing the if statement
     if (m_ncp.apsMode.equals("play")) {
       try {
-        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 1) {
+        // * Intaker debounce
+        // ! Not an efficient debounce, recreate this
+        if (aintakeDebounce) {
+          aloops++;
+          if (aloops > 25) {
+            aintakeDebounce = false;
+            aloops = 0;
+          }
+        } else if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 1) {
+          aintakeDebounce = true;
           m_arm.toggleIntaker();
         }
-        
+
         // Drive functionality
         if (Math.abs(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0)) < Constants.joystickDriftSafety) {
           double joystickX = -m_ncp.apsActions.get(m_ncp.apsIndex).get(1);

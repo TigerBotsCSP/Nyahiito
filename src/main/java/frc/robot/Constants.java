@@ -7,4 +7,5 @@ public class Constants {
     public static int armLengthOutPOV = 0;
     public static int armLengthInPOV = 180;
     public static double joystickDriftSafety = 0.3;
+    public static double pathwayLoadingDelay = 0.25;
 }

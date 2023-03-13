@@ -87,6 +87,7 @@ public class Ncp {
                         Constants.armLengthOutPOV = varsObject.get("Arm Out POV").getAsInt();
                         Constants.armLengthInPOV = varsObject.get("Arm In POV").getAsInt();
                         Constants.joystickDriftSafety = varsObject.get("Joystick Drift").getAsDouble();
+                         Constants.pathwayLoadingDelay = varsObject.get("Pathway Load Delay").getAsDouble();
 
                         // Detect APS
                         if (rootObject.has("Pathway System")) {
@@ -132,6 +133,7 @@ public class Ncp {
         varsObject.addProperty("Arm In POV", Constants.armLengthInPOV);
         varsObject.addProperty("Arm Out POV", Constants.armLengthOutPOV);
         varsObject.addProperty("Joystick Drift", Constants.joystickDriftSafety);
+        varsObject.addProperty("Pathway Load Delay", Constants.pathwayLoadingDelay);
 
         // Create detected AprilTags array
         JsonArray tagsArray = new JsonArray();
@@ -199,7 +201,7 @@ public class Ncp {
                 case "save":
                     if (!apsSaved) {
                         apsSaved = true;
-                        
+
                         // Playing will also officially save the file
                         String id = String.format("%04d", new Random().nextInt(10000));
 
@@ -212,10 +214,10 @@ public class Ncp {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        
+
                         log("Saved path as " + id + ".json!");
                     } else {
-                        log("Path's already saved broski");
+                        log("Path's already saved...");
                     }
                     break;
             }
@@ -224,8 +226,10 @@ public class Ncp {
 
     // ArrayList, then start recording!
     public void apl(String path) {
+        System.out.println("what");
         // Is this a real path?
         if (!new File(path).exists()) {
+            System.out.println("ret");
             return;
         }
 
@@ -239,8 +243,10 @@ public class Ncp {
             // Put the actions into the Array
             apsActions = gson.fromJson(pathData, ArrayList.class);
 
+            System.out.println("done");
+
         } catch (IOException e) {
-            e.printStackTrace();        
+            e.printStackTrace();
         }
 
         apsMode = "play";
