@@ -19,7 +19,7 @@ public class Drive {
     private DifferentialDrive m_drive;
     
     public XboxController m_controller;
-    public Joystick m_joystick;
+    public XboxController m_controllerSide;
     
     Drive() {
         m_frontLeft = new PWMSparkMax(2);
@@ -33,6 +33,7 @@ public class Drive {
         m_drive = new DifferentialDrive(m_left, m_right);
         
         m_controller = new XboxController(0);
+        m_controllerSide = new XboxController(1);
     }
     
     public void toggleDrive(boolean oneStickMode) {
@@ -42,6 +43,10 @@ public class Drive {
         } else {
            m_drive.tankDrive(-m_controller.getLeftY(), m_controller.getLeftY());
         }
+    }
+
+    public void rotateDrive(double speed, double rotation) {
+        m_drive.curvatureDrive(speed, rotation, false);
     }
 
     public void toggleDrive(double leftSpeed, double rightSpeed) {
