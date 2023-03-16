@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -46,7 +45,7 @@ public class Drive {
     }
 
     public void rotateDrive(double speed, double rotation) {
-        m_drive.curvatureDrive(speed, rotation, false);
+        m_drive.arcadeDrive(speed, rotation);
     }
 
     public void toggleDrive(double leftSpeed, double rightSpeed) {
