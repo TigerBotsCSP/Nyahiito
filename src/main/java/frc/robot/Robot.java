@@ -38,21 +38,30 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    // * Intaker debounce
-    // ! Not an efficient debounce, recreate this
-    if (intakeDebounce) {
-      loops++;
-      if (loops > 25) {
-        intakeDebounce = false;
-        loops = 0;
+    // Drive Speed Toggle
+    if (m_drive.m_controller.getBButtonPressed()) {
+      if (Constants.driveSpeed == .7) {
+        // Turbo
+        Constants.driveSpeed = .9;
+      } else {
+        // Normal
+        Constants.driveSpeed = .7;
       }
-    } else if (m_drive.m_controllerSide.getBButton()) {
-      intakeDebounce = true;
-      m_arm.toggleIntaker();
+    }
+    
+    // Intaker
+    if (m_drive.m_controllerSide.getBButtonPressed()) {
+      m_arm.toggleIntaker(); 
     }
 
     // Drive functionality
-    m_drive.rotateDrive(-m_drive.m_controller.getLeftX(), -m_drive.m_controller.getLeftY());
+    if (m_drive.m_controller.getRightBumper()) {
+      m_drive.rotateDrive(0, 0);
+    } else {
+      double speedX = Math.max(Math.min(-m_drive.m_controller.getLeftX(), Constants.driveSpeed), -Constants.driveSpeed);
+      double speedY = Math.max(Math.min(-m_drive.m_controller.getLeftY(), Constants.driveSpeed), -Constants.driveSpeed);
+      m_drive.rotateDrive(speedX, speedY);
+    }
 
     // Arm rotation
     double armSpeed = Math.max(Math.min(m_drive.m_controllerSide.getLeftY(), Constants.armSpeed), -Constants.armSpeed);
@@ -61,13 +70,6 @@ public class Robot extends TimedRobot {
     // Arm length
     double armLength = Math.max(Math.min(m_drive.m_controllerSide.getRightY(), Constants.armSpeed), -Constants.armSpeed);
     m_arm.setLength(-armLength);
-
-    // Emergency stop
-    if (m_drive.m_controller.getBackButton()) {
-      m_arm.setOrientation(0);
-      m_arm.setLength(0);
-      m_drive.toggleDrive(0, 0);
-    }
 
     // * APS: Recording
     /* if (m_ncp.apsMode.equals("record")) {
@@ -118,7 +120,7 @@ public class Robot extends TimedRobot {
   
         // ! Pathway Roulette: After one second of no detection, put a cone in and pray.
         if (Timer.getFPGATimestamp() - startTime > 1) {
-          m_ncp.apl("/home/lvuser/side2.json");
+          m_ncp.apl("/home/lvuser/path_middle.json");
           break;
         }
   
@@ -159,7 +161,7 @@ public class Robot extends TimedRobot {
         }
         m_ncp.apsIndex++;
       } catch (Exception e) {
-        m_ncp.apsIndex = 0;
+       // m_ncp.apsIndex = 0;
       }
     }
   }
