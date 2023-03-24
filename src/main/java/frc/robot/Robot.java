@@ -19,6 +19,9 @@ public class Robot extends TimedRobot {
   Arm m_arm = new Arm();
   Limelight m_limeLight = new Limelight();
   Ncp m_ncp = new Ncp();
+  Timer m_tTimer = new Timer();
+  Timer m_aTimer = new Timer();
+
   // I2C m_gyro = new I2C(Port.kOnboard, 55);
   BNO055 m_gBno055 = new BNO055(Port.kOnboard, 0x29);
   private static BNO055 imu;
@@ -39,7 +42,7 @@ public class Robot extends TimedRobot {
         BNO055.vector_type_t.VECTOR_EULER);
   }
 
-  //Override
+  // Override
   public void robotxPeriodic() {
     double angle = imu.getVector()[1];
 
@@ -56,7 +59,8 @@ public class Robot extends TimedRobot {
     output = Math.max(-1, Math.min(1, output));
 
     // Move the robot forward/backward based on the output
-    // Here, we assume that a positive output means moving forward, and a negative output means moving backward
+    // Here, we assume that a positive output means moving forward, and a negative
+    // output means moving backward
     m_drive.straightDrive(-output);
 
     Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
@@ -66,6 +70,13 @@ public class Robot extends TimedRobot {
   float loops = 0;
   boolean intakeDebounce = false;
 
+  @Override
+  public void teleopInit() {
+    m_tTimer.start();
+    m_drive.m_leftIntaker.set(-.2);
+    m_drive.m_rightIntaker.set(.2);
+  }
+
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
@@ -73,6 +84,7 @@ public class Robot extends TimedRobot {
     if (m_drive.m_controller.getBButtonPressed()) {
       if (Constants.driveSpeed == .7) {
         // Turbo
+
         Constants.driveSpeed = .9;
       } else {
         // Normal
@@ -80,13 +92,16 @@ public class Robot extends TimedRobot {
       }
     }
 
-    // 180 Spin
-    double spin = m_drive.m_controller.getLeftTriggerAxis();
-    m_drive.rotateDrive(0, spin);
+    // Drive Intaker
+    if (m_drive.m_controller.getLeftBumperPressed()) {
+      m_drive.toggleIntaker();
+    }
 
     // Intaker
-    if (m_drive.m_controllerSide.getBButtonPressed()) {
-      m_arm.toggleIntaker();
+    if (m_drive.m_controllerSide.getAButton()) {
+      m_arm.close();
+    } else if (m_drive.m_controllerSide.getBButton()) {
+      m_arm.open();
     }
 
     // Drive functionality
@@ -116,8 +131,9 @@ public class Robot extends TimedRobot {
       data.add(m_drive.m_controller.getLeftX()); // Robot rotation
       data.add(m_drive.m_controllerSide.getLeftY()); // Arm rotation
       data.add(m_drive.m_controllerSide.getRightY()); // Arm length
-      data.add(m_drive.m_controllerSide.getBButtonPressed() ? 1.0 : 0.0); // Intaker
+      data.add(m_drive.m_controllerSide.getBButton() ? 1.0 : (m_drive.m_controllerSide.getAButton() ? 2.0 : 0)); // Intaker
       data.add(m_drive.m_controller.getRightBumperPressed() ? 1.0 : 0.0); // Brakes
+      data.add(m_tTimer.get()); // Time
 
       // Push the data
       m_ncp.apsActions.add(data);
@@ -136,7 +152,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    m_drive.m_leftIntaker.set(0);
+    m_drive.m_rightIntaker.set(0);
+
     startTime = Timer.getFPGATimestamp();
+    m_aTimer.start();
   }
 
   // Autonomous Mode
@@ -144,30 +164,45 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     if (!m_ncp.apsLoaded) {
       while (true) {
-        boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(1, 3, 6, 8));
-        if (tagsSide) {
-          m_ncp.apl("/home/lvuser/side2.json");
-          break;
-        } else if (!Collections.disjoint(m_limeLight.getDetectedTags(), Arrays.asList(2, 7))) {
-          // Middle
-          m_ncp.apl("/home/lvuser/path_middle.json");
-          break;
-        }
+        /*
+         * boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(),
+         * Arrays.asList(1, 3, 6, 8));
+         * if (tagsSide) {
+         * m_ncp.apl("/home/lvuser/side2.json");
+         * break;
+         * } else if (!Collections.disjoint(m_limeLight.getDetectedTags(),
+         * Arrays.asList(2, 7))) {
+         * // Middle
+         * m_ncp.apl("/home/lvuser/path_middle.json");
+         * break;
+         * }
+         * 
+         * // ! Pathway Roulette: After one second of no detection, put a cone in and
+         * pray.
+         * if (Timer.getFPGATimestamp() - startTime > 1) {
+         * m_ncp.apl("/home/lvuser/path_middle.json");
+         * break;
+         * }
+         */
 
-        // ! Pathway Roulette: After one second of no detection, put a cone in and pray.
-        if (Timer.getFPGATimestamp() - startTime > 1) {
-          m_ncp.apl("/home/lvuser/path_middle.json");
-          break;
-        }
-
-        Timer.delay(.15);
+        m_ncp.apl("/home/lvuser/8501.json");
+        break;
       }
     }
 
     if (true) {
       try {
+        // Time Accuracy
+        /*double currTime = m_ncp.apsActions.get(m_ncp.apsIndex).get(6);
+        if (currTime > m_aTimer.get()) {
+          System.out.println("del");
+          Timer.delay(m_aTimer.get() - currTime);
+        };*/
+
         if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 1) {
-          m_arm.toggleIntaker();
+          m_arm.open();
+        } else if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 2) {
+          m_arm.close();
         }
 
         // Drive functionality
@@ -187,16 +222,37 @@ public class Robot extends TimedRobot {
         m_arm.setOrientation(armSpeed);
 
         // Arm length
-        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(3) == Constants.armLengthOutPOV) {
-          m_arm.setLength(Constants.armSpeed);
-        } else if (m_ncp.apsActions.get(m_ncp.apsIndex).get(3) == Constants.armLengthInPOV) {
-          m_arm.setLength(-Constants.armSpeed);
-        } else {
-          m_arm.setLength(0);
-        }
+        double armLength = Math.max(Math.min(m_ncp.apsActions.get(m_ncp.apsIndex).get(3), Constants.armSpeed),
+            -Constants.armSpeed);
+        m_arm.setLength(armLength);
+
         m_ncp.apsIndex++;
       } catch (Exception e) {
         // m_ncp.apsIndex = 0;
+        if (m_ncp.apsPath == "/home/lvuser/85i01.json") {
+          while (true) {
+            double angle = imu.getVector()[1];
+
+            // Calculate the error and update the integral
+            double error = setpoint - angle;
+            integral += error * 0.02; // Sample time of 0.02 seconds
+            double derivative = (error - previous_error) / 0.02;
+            previous_error = error;
+
+            // Calculate the output using the PID formula
+            double output = Kp * error + Ki * integral + Kd * derivative;
+
+            // Limit the output to a reasonable range (e.g. -1 to 1 for motor speed)
+            output = Math.max(-1, Math.min(1, output));
+
+            // Move the robot forward/backward based on the output
+            // Here, we assume that a positive output means moving forward, and a negative
+            // output means moving backward
+            m_drive.straightDrive(-output);
+
+            Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
+          }
+        }
       }
     }
   }

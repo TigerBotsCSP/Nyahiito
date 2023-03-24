@@ -28,6 +28,7 @@ public class Ncp {
     // * APS Variables
     String apsMode = "stop";
     String apsPrevPath = "";
+    String apsPath = "";
     boolean apsSaved = false;
     boolean apsLoaded = false;
     ArrayList<ArrayList<Double>> apsActions = new ArrayList<>(3);
@@ -250,5 +251,6 @@ public class Ncp {
 
         apsLoaded = true;
         apsMode = "play";
+        apsPath = path;
     }
 }

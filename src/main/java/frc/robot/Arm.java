@@ -21,16 +21,14 @@ public class Arm {
         m_armRotation = new PWMSparkMax(1);
     }
 
-    public void toggleIntaker() {
-        if (m_armsOut) {    
-            m_armsOut = false;
-            m_solenoidOne.set(Value.kReverse);
-            m_solenoidTwo.set(Value.kReverse);
-        } else {
-            m_armsOut = true;
-            m_solenoidOne.set(Value.kForward);
-            m_solenoidTwo.set(Value.kForward);
-        }
+    public void open() {
+        m_solenoidOne.set(Value.kForward);
+        m_solenoidTwo.set(Value.kForward);
+    }
+
+    public void close() {
+        m_solenoidOne.set(Value.kReverse);
+        m_solenoidTwo.set(Value.kReverse);
     }
 
     public void setOrientation(double value) {
