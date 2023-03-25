@@ -26,7 +26,7 @@ public class Drive {
     public PWMSparkMax m_leftIntaker;
     public PWMSparkMax m_rightIntaker;
 
-    private boolean m_intakerIn;
+    public boolean m_intakerIn;
 
     Drive() {
         m_frontLeft = new PWMSparkMax(2);
@@ -45,7 +45,7 @@ public class Drive {
         m_leftIntaker = new PWMSparkMax(6);
         m_rightIntaker = new PWMSparkMax(7);
 
-        m_intakerIn = true;
+        m_intakerIn = false;
     }
 
     public void rotateDrive(double speed, double rotation) {

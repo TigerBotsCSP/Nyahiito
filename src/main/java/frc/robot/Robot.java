@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
   Drive m_drive = new Drive();
@@ -37,14 +38,14 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture(0);
     CameraServer.startAutomaticCapture(1);
     m_limeLight.startLimelight();
-    m_ncp.core();
+    //m_ncp.core();
     imu = BNO055.getInstance(BNO055.opmode_t.OPERATION_MODE_IMUPLUS,
         BNO055.vector_type_t.VECTOR_EULER);
   }
 
-  // Override
-  public void robotxPeriodic() {
-    double angle = imu.getVector()[1];
+  @Override
+  public void robotPeriodic() {
+    /*double angle = imu.getVector()[1];
 
     // Calculate the error and update the integral
     double error = setpoint - angle;
@@ -63,16 +64,19 @@ public class Robot extends TimedRobot {
     // output means moving backward
     m_drive.straightDrive(-output);
 
-    Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
+    Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time*/
+    SmartDashboard.putNumber("Gyro", imu.getVector()[1]);
+
   }
 
   // ! Part of the inefficient intaker debounce
   float loops = 0;
   boolean intakeDebounce = false;
+  boolean atTeleop = false;
 
   @Override
   public void teleopInit() {
-    m_tTimer.start();
+    atTeleop = true;
     m_drive.m_leftIntaker.set(-.2);
     m_drive.m_rightIntaker.set(.2);
   }
@@ -80,6 +84,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putString("Intaker", m_drive.m_intakerIn ? "In" : "Out");
     // Drive Speed Toggle
     if (m_drive.m_controller.getBButtonPressed()) {
       if (Constants.driveSpeed == .7) {
@@ -122,7 +127,7 @@ public class Robot extends TimedRobot {
         -Constants.armSpeed);
     m_arm.setLength(-armLength);
 
-    // * APS: Recording
+    /*// * APS: Recording
     if (m_ncp.apsMode.equals("record")) {
       // Initialize the autonomous data for this frame
       ArrayList<Double> data = new ArrayList<Double>();
@@ -140,12 +145,14 @@ public class Robot extends TimedRobot {
     }
 
     // * Lowest priority: NCP Publishing
-    m_ncp.publish(m_limeLight.getDetectedTags());
+    m_ncp.publish(m_limeLight.getDetectedTags());*/
   }
 
   // ! Part of the inefficient intaker debounce
   float aloops = 0;
   boolean aintakeDebounce = false;
+
+  boolean ncpDoGyro = false;
 
   // Autonomous Mode
   private double startTime;
@@ -159,10 +166,13 @@ public class Robot extends TimedRobot {
     m_aTimer.start();
   }
 
+  Timer thetime = new Timer();
+
   // Autonomous Mode
   @Override
   public void autonomousPeriodic() {
     if (!m_ncp.apsLoaded) {
+      thetime.start();
       while (true) {
         /*
          * boolean tagsSide = !Collections.disjoint(m_limeLight.getDetectedTags(),
@@ -185,9 +195,30 @@ public class Robot extends TimedRobot {
          * }
          */
 
-        m_ncp.apl("/home/lvuser/8501.json");
+        m_ncp.apl("/home/lvuser/4531.json");
         break;
       }
+    } else if (5 == 7) {
+      double angle = imu.getVector()[1];
+
+      // Calculate the error and update the integral
+      double error = setpoint - angle;
+      integral += error * 0.02; // Sample time of 0.02 seconds
+      double derivative = (error - previous_error) / 0.02;
+      previous_error = error;
+
+      // Calculate the output using the PID formula
+      double output = Kp * error + Ki * integral + Kd * derivative;
+
+      // Limit the output to a reasonable range (e.g. -1 to 1 for motor speed)
+      output = Math.max(-1, Math.min(1, output));
+
+      // Move the robot forward/backward based on the output
+      // Here, we assume that a positive output means moving forward, and a negative
+      // output means moving backward
+      m_drive.straightDrive(-output);
+
+      Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
     }
 
     if (true) {
@@ -229,8 +260,15 @@ public class Robot extends TimedRobot {
         m_ncp.apsIndex++;
       } catch (Exception e) {
         // m_ncp.apsIndex = 0;
-        if (m_ncp.apsPath == "/home/lvuser/85i01.json") {
-          while (true) {
+        if (m_ncp.apsPath == "/home/lvuser/9401.json"){
+          ncpDoGyro = true;
+        }
+
+        // ! Not used
+        if (m_ncp.apsPath == "/home/lvuser/9401.json") {
+          double ms = 14000 - (thetime.get() * 1000);
+          while (ms > 0) {
+            ms = 14000 - (thetime.get() * 1000);
             double angle = imu.getVector()[1];
 
             // Calculate the error and update the integral
@@ -248,7 +286,7 @@ public class Robot extends TimedRobot {
             // Move the robot forward/backward based on the output
             // Here, we assume that a positive output means moving forward, and a negative
             // output means moving backward
-            m_drive.straightDrive(-output);
+            m_drive.straightDrive(-output * .8);
 
             Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
           }
