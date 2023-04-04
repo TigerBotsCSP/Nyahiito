@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -146,6 +147,91 @@ public class Robot extends TimedRobot {
 
     // * Lowest priority: NCP Publishing
     m_ncp.publish(m_limeLight.getDetectedTags());*/
+
+    // ? All Lite stuff
+    if (m_ncp.liteMode.equals("Record")) {
+      ArrayList<Double> data = new ArrayList<Double>();
+
+      data.add(m_drive.m_controller.getLeftY()); // Robot forward
+      data.add(m_drive.m_controller.getLeftX()); // Robot rotation
+      data.add(m_drive.m_controllerSide.getLeftY()); // Arm rotation
+      data.add(m_drive.m_controllerSide.getRightY()); // Arm length
+      data.add(m_drive.m_controllerSide.getBButton() ? 1.0 : (m_drive.m_controllerSide.getAButton() ? 2.0 : 0)); // Intaker
+      data.add(m_drive.m_controller.getRightBumperPressed() ? 1.0 : 0.0); // Brakes
+      data.add(m_tTimer.get()); // Time 6
+      data.add((Double) RobotController.getBatteryVoltage()); // Voltage 7
+
+      // Push the data
+      m_ncp.apsActions.add(data);
+    } else if (m_ncp.liteMode.equals("Play") && m_ncp.liteDoAuto) {
+      // * Will play as auto but during teleop for ease
+      // * Voltage and time is in the data, try out aligning times
+      if (true) {
+      try {
+        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 1) {
+          m_arm.open();
+        } else if (m_ncp.apsActions.get(m_ncp.apsIndex).get(4) == 2) {
+          m_arm.close();
+        }
+
+        // Drive functionality
+        if (m_ncp.apsActions.get(m_ncp.apsIndex).get(5) == 1) {
+          m_drive.rotateDrive(0, 0);
+        } else {
+          double AspeedX = Math.max(Math.min(-m_ncp.apsActions.get(m_ncp.apsIndex).get(1), Constants.driveSpeed),
+              -Constants.driveSpeed);
+          double AspeedY = Math.max(Math.min(-m_ncp.apsActions.get(m_ncp.apsIndex).get(0), Constants.driveSpeed),
+              -Constants.driveSpeed);
+          m_drive.rotateDrive(AspeedX, AspeedY);
+        }
+
+        // Arm rotation
+        double AarmSpeed = Math.max(Math.min(m_ncp.apsActions.get(m_ncp.apsIndex).get(2), Constants.armSpeed),
+            -Constants.armSpeed);
+        m_arm.setOrientation(AarmSpeed);
+
+        // Arm length
+        double AarmLength = Math.max(Math.min(m_ncp.apsActions.get(m_ncp.apsIndex).get(3), Constants.armSpeed),
+            -Constants.armSpeed);
+        m_arm.setLength(AarmLength);
+
+        m_ncp.apsIndex++;
+      } catch (Exception e) {
+        // m_ncp.apsIndex = 0;
+        if (m_ncp.apsPath == "/home/lvuser/9401.json"){
+          ncpDoGyro = true;
+        }
+
+        // ? Gyro
+        if (m_ncp.apsPath == "/home/lvuser/9401.json") {
+          double ms = 14000 - (thetime.get() * 1000);
+          while (ms > 0) {
+            ms = 14000 - (thetime.get() * 1000);
+            double angle = imu.getVector()[1];
+
+            // Calculate the error and update the integral
+            double error = setpoint - angle;
+            integral += error * 0.02; // Sample time of 0.02 seconds
+            double derivative = (error - previous_error) / 0.02;
+            previous_error = error;
+
+            // Calculate the output using the PID formula
+            double output = Kp * error + Ki * integral + Kd * derivative;
+
+            // Limit the output to a reasonable range (e.g. -1 to 1 for motor speed)
+            output = Math.max(-1, Math.min(1, output));
+
+            // Move the robot forward/backward based on the output
+            // Here, we assume that a positive output means moving forward, and a negative
+            // output means moving backward
+            m_drive.straightDrive(-output * .8);
+
+            Timer.delay(0.02); // Wait for 0.02 seconds to simulate a sample time
+          }
+        }
+      }
+    }
+    }
   }
 
   // ! Part of the inefficient intaker debounce

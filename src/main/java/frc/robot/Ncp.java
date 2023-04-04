@@ -63,6 +63,9 @@ public class Ncp {
                     if (rootObject.has("Execute")) {
                         String command = rootObject.get("Execute").getAsString();
                         exec(command);
+                    } else if (rootObject.has("Action")) {
+                        // Lite
+                        lite(rootObject);
                     } else {
                         // * NCP Protocol: Websocket messages get sent from the control panel, to the
                         // Node server, and finally to this code.
@@ -110,7 +113,7 @@ public class Ncp {
 
             ncpWebSocket.connect();
 
-            log("<b style='color: orange'>🐯 Nyahiito es aquí.</b>");
+            log("<b style='color: orange'>🐯 Nyahiito es aqui.</b>");
             publish();
         } catch (WebSocketException e) {
             e.printStackTrace();
@@ -161,6 +164,18 @@ public class Ncp {
         JsonObject log = new JsonObject();
         log.addProperty("Log", message);
 
+        // ? Log Publish: Send a message to display in the client's terminal
+        ncpWebSocket.sendText(log.toString());
+    }
+
+    public void llog(String message, boolean isABigDeal) {
+        JsonObject log = new JsonObject();
+        log.addProperty("Log", message);
+        if (isABigDeal) {
+            log.addProperty("Action", "BigLog");
+        } else {
+            log.addProperty("Action", "Log");
+        }
         // ? Log Publish: Send a message to display in the client's terminal
         ncpWebSocket.sendText(log.toString());
     }
@@ -252,5 +267,38 @@ public class Ncp {
         apsLoaded = true;
         apsMode = "play";
         apsPath = path;
+    }
+
+    String liteMode = "Stop";
+    boolean liteDoAuto = false;
+
+    // NCP Lite
+    public void lite(JsonObject root) {
+        // check action
+        String action = root.get("Action").getAsString();
+        liteMode = action;
+        String data = root.get("Data").getAsString();
+        if (action.equals("Save")) {
+              // Playing will also officially save the file
+              String id = String.format("%04d", new Random().nextInt(10000));
+
+              // Convert to JSON string then save
+              Gson gson = new GsonBuilder().create();
+              String json = gson.toJson(apsActions, ArrayList.class);
+                    
+              try {
+                Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+                    
+              llog("Saved as " + id + ".json", true);
+        } else if (action.equals("Reset")) {
+            liteDoAuto = false;
+            apsActions.clear();
+        } else if (action.equals("Play")) {
+            apl("/home/lvuser/" + data + ".json");
+            liteDoAuto = true;
+        }
     }
 }
