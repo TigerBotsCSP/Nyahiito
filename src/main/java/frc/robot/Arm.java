@@ -12,8 +12,6 @@ public class Arm {
     private PWMSparkMax m_armRotation ;
     private PWMSparkMax m_armLength ;
 
-    private boolean m_armsOut = false;
-
     Arm() {
         m_solenoidOne = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
         m_solenoidTwo = new DoubleSolenoid(PneumaticsModuleType.REVPH, 2, 3); // ! Not functioning

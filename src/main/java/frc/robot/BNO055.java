@@ -390,7 +390,6 @@ public class BNO055 {
 			//Step through process of initializing the sensor in a non-
 			//  blocking manner. This sequence of events follows the process
 			//  defined in the original adafruit source as closely as possible.
-			//  XXX: It's likely some of these delays can be optimized out.
 			switch(state) {
 			case 0:
 				//Wait for the sensor to be present

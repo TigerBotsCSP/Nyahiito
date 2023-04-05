@@ -20,7 +20,8 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 public class Ncp {
     // * Variables
-    String ncpServerURL = "ws://10.90.72.221:9072/v1/client";
+    String ncpServerURL = "ws://10.90.72.221:9072/v1/client"; // Wireless
+    String backupNcpServerURL = "ws://172.22.11.1:9072/v1/client"; // Wired
     WebSocketFactory ncpFactory;
     WebSocket ncpWebSocket;
     ArrayList<String> ncpLogs = new ArrayList<>();
@@ -45,8 +46,14 @@ public class Ncp {
             ncpFactory = new WebSocketFactory();
             ncpWebSocket = ncpFactory.createSocket(ncpServerURL, 1000);
         } catch (IOException e) {
+            // Attempt to connect to backup server URL if the first one fails
+            try {
+                ncpWebSocket = ncpFactory.createSocket(backupNcpServerURL, 1000);
+            } catch (IOException e2) {
+                e2.printStackTrace();
+            }
             e.printStackTrace();
-        }
+        }        
     }
 
     // ! Nyahiito Control Panel: Core function, handles initial connection and
@@ -92,7 +99,7 @@ public class Ncp {
                         Constants.armLengthOutPOV = varsObject.get("Arm Out POV").getAsInt();
                         Constants.armLengthInPOV = varsObject.get("Arm In POV").getAsInt();
                         Constants.joystickDriftSafety = varsObject.get("Joystick Drift").getAsDouble();
-                         Constants.pathwayLoadingDelay = varsObject.get("Pathway Load Delay").getAsDouble();
+                        Constants.pathwayLoadingDelay = varsObject.get("Pathway Load Delay").getAsDouble();
 
                         // Detect APS
                         if (rootObject.has("Pathway System")) {
@@ -170,7 +177,7 @@ public class Ncp {
 
     public void llog(String message, boolean isABigDeal) {
         JsonObject log = new JsonObject();
-        log.addProperty("Log", message);
+        log.addProperty("Data", message);
         if (isABigDeal) {
             log.addProperty("Action", "BigLog");
         } else {
@@ -243,9 +250,6 @@ public class Ncp {
     // ArrayList, then start recording!
     public void apl(String path) {
         // Is this a real path?
-        if (apsLoaded) {
-            return;
-        }
 
         apsActions.clear();
 
@@ -279,26 +283,30 @@ public class Ncp {
         liteMode = action;
         String data = root.get("Data").getAsString();
         if (action.equals("Save")) {
-              // Playing will also officially save the file
-              String id = String.format("%04d", new Random().nextInt(10000));
+            // Playing will also officially save the file
+            String id = String.format("%04d", new Random().nextInt(10000));
 
-              // Convert to JSON string then save
-              Gson gson = new GsonBuilder().create();
-              String json = gson.toJson(apsActions, ArrayList.class);
-                    
-              try {
+            // Convert to JSON string then save
+            Gson gson = new GsonBuilder().create();
+            String json = gson.toJson(apsActions, ArrayList.class);
+
+            try {
                 Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
-              } catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-              }
-                    
-              llog("Saved as " + id + ".json", true);
+            }
+
+            llog("Saved as " + id + ".json", true);
         } else if (action.equals("Reset")) {
+            apsIndex = 0;
             liteDoAuto = false;
             apsActions.clear();
-        } else if (action.equals("Play")) {
+        } else if (action.equals("Load")) {
             apl("/home/lvuser/" + data + ".json");
+            llog("Loading in.", false);
             liteDoAuto = true;
+        } else if (action.equals("Reverse")) {
+            // for now, idk
         }
     }
 }

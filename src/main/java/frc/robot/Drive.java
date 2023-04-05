@@ -23,11 +23,6 @@ public class Drive {
     public XboxController m_controller;
     public XboxController m_controllerSide;
 
-    public PWMSparkMax m_leftIntaker;
-    public PWMSparkMax m_rightIntaker;
-
-    public boolean m_intakerIn;
-
     Drive() {
         m_frontLeft = new PWMSparkMax(2);
         m_rearLeft = new PWMSparkMax(3);
@@ -41,11 +36,6 @@ public class Drive {
 
         m_controller = new XboxController(0);
         m_controllerSide = new XboxController(1);
-
-        m_leftIntaker = new PWMSparkMax(6);
-        m_rightIntaker = new PWMSparkMax(7);
-
-        m_intakerIn = false;
     }
 
     public void rotateDrive(double speed, double rotation) {
@@ -62,17 +52,5 @@ public class Drive {
 
     public void straightDrive(double speed) {
         m_drive.tankDrive(-speed, speed);
-    }
-
-    public void toggleIntaker() {
-        if (m_intakerIn) {
-            m_intakerIn = false;
-            m_leftIntaker.set(.2);
-            m_rightIntaker.set(-.2);
-        } else {
-            m_intakerIn = true;
-            m_leftIntaker.set(-.2);
-            m_rightIntaker.set(.2);
-        }
     }
 }
