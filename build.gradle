@@ -53,6 +53,7 @@ dependencies {
 
     implementation 'com.neovisionaries:nv-websocket-client:2.14'
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)

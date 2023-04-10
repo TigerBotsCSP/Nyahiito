@@ -5,8 +5,8 @@ package frc.robot;
 public class Constants {
     public static double driveSpeed = .7;
     public static double armSpeed = .8;
-    public static int armLengthOutPOV = 0;
-    public static int armLengthInPOV = 180;
-    public static double joystickDriftSafety = 0.3;
-    public static double pathwayLoadingDelay = 0.25;
+
+    public static class Auto {
+        public static String autoPath = "/home/lvuser/7185.json";
+    }
 }
