@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 public class Ncp {
     // * Variables
-    String ncpServerURL = "ws://10.90.72.221:9072/v1/client"; // Wireless
+    String ncpServerURL = "ws://172.22.11.1:9072/v1/client"; // Wireless
     String backupNcpServerURL = "ws://172.22.11.1:9072/v1/client"; // Wired
     WebSocketFactory ncpFactory;
     WebSocket ncpWebSocket;
@@ -274,6 +274,7 @@ public class Ncp {
     }
 
     String liteMode = "Stop";
+    String liteData = "";
     boolean liteDoAuto = false;
 
     // NCP Lite
@@ -305,8 +306,8 @@ public class Ncp {
             apl("/home/lvuser/" + data + ".json");
             llog("Loading in.", false);
             liteDoAuto = true;
-        } else if (action.equals("Reverse")) {
-            // for now, idk
+        } else if (action.equals("Values")) {
+            liteData = data;
         }
     }
 }

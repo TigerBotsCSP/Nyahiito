@@ -33,6 +33,7 @@ public class Drive {
         m_right = new MotorControllerGroup(m_frontRight, m_rearRight);
 
         m_drive = new DifferentialDrive(m_left, m_right);
+        m_drive.setSafetyEnabled(false);
 
         m_controller = new XboxController(0);
         m_controllerSide = new XboxController(1);
@@ -47,7 +48,7 @@ public class Drive {
         WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(speed, rotation, true);
 
         m_left.set(speeds.left * 1);
-        m_right.set(speeds.right * 1.1);
+        m_right.set(speeds.right * 1);
     }
 
     public void straightDrive(double speed) {
