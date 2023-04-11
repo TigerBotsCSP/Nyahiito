@@ -7,9 +7,11 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 
 public class Arm {
     private DoubleSolenoid m_solenoid;
+    private DoubleSolenoid m_solenoid2;
 
     private PWMSparkMax m_armRotation;
     private PWMSparkMax m_armLength;
+    private PWMSparkMax m_
 
     Arm() {
         m_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
