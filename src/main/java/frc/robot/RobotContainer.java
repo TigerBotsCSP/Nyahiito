@@ -13,6 +13,7 @@ public class RobotContainer {
     public static Arm m_arm = new Arm();
     public static Gyro m_gyro = new Gyro();
     public static Auto m_auto = new Auto();
+    public static Intaker m_intaker = new Intaker();
     public static NyaDS m_nyads = new NyaDS();
 
     // Controllers
@@ -29,29 +30,35 @@ public class RobotContainer {
         Constants.Auto.autoPath = SmartDashboard.getString("Auto Path/active", "");
         SmartDashboard.putNumber("Gyro Angle", m_gyro.getAngle());
         SmartDashboard.putNumber("Turn Rate", m_gyro.getTurnRate());
-        SmartDashboard.putBoolean("Drive Speed", (Constants.driveSpeed == .7 ? false : true)); // Green if turbo, use rocket glyph
-        SmartDashboard.putBoolean("Arm Speed", (Constants.armSpeed == .6 ? false : true)); // Green if turbo, use rocket glyph
+        SmartDashboard.putBoolean("Drive Speed", (Constants.driveSpeed == .7 ? false : true)); // Green if turbo
+        SmartDashboard.putBoolean("Arm Speed", (Constants.armSpeed == .6 ? false : true)); // Green if turbo
+        SmartDashboard.putBoolean("Intaker In", m_intaker.m_in); // Green if turbo
     }
 
     public static void init() {
-        // Autonomous chooser
-        ArrayList<String> fileNames = new ArrayList<>();
- 
-        File directory = new File("/home/lvuser/nyads/");
-        File[] files = directory.listFiles((dir, name) -> name.endsWith(".json"));
- 
-        for (File file : files) {
-            fileNames.add(file.getName());
-        }
- 
-        SendableChooser<String> chooser = new SendableChooser<>();
-        for (String fileName : fileNames) {
-            chooser.addOption(fileName, fileName);
-        }
- 
-        SmartDashboard.putData("Auto Path", chooser);
+        try {
+            // Autonomous chooser
+            ArrayList<String> fileNames = new ArrayList<>();
 
-        // NyaDS Setup
-        m_nyads.start();
+            File directory = new File("/home/lvuser/nyads/");
+            File[] files = directory.listFiles((dir, name) -> name.endsWith(".json"));
+
+            for (File file : files) {
+                fileNames.add(file.getName());
+            }
+
+            SendableChooser<String> chooser = new SendableChooser<>();
+            for (String fileName : fileNames) {
+                chooser.addOption(fileName, fileName);
+            }
+            chooser.setDefaultOption(Constants.Auto.autoPath, Constants.Auto.autoPath);
+
+            SmartDashboard.putData("Auto Path", chooser);
+
+            // NyaDS Setup
+            m_nyads.start();
+        } catch (Exception e) {
+            // No files :(
+        }
     }
 }

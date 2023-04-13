@@ -22,6 +22,7 @@ public class Gyro {
     public void init() {
         m_pid.setSetpoint(0.0);
         m_pid.setIntegratorRange(-180.0, 180.0);
+        m_gyro.calibrate();
     }
 
     public double getAngle() {
@@ -31,6 +32,10 @@ public class Gyro {
     public double getTurnRate() {
         double angle = m_gyro.getAngle();
         return m_pid.calculate(angle);
+    }
+
+    public void reset() {
+        m_gyro.reset();
     }
 
     public AHRS getGyro() {

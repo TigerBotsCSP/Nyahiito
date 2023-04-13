@@ -6,15 +6,22 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 
-public class Robot extends TimedRobot {  
+public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
+    RobotContainer.m_gyro.init();
+
     RobotContainer.init();
   }
 
   @Override
   public void robotPeriodic() {
     RobotContainer.updateData();
+
+    // Reset Gyro
+    if (RobotContainer.m_driveController.getBackButtonPressed()) {
+      RobotContainer.m_gyro.reset();
+    }
   }
 
   @Override
@@ -23,10 +30,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (RobotContainer.m_nyads.executing) return;
+    if (RobotContainer.m_nyads.executing)
+      return;
 
     // Drive Speed Toggle``
-    if (RobotContainer.m_driveController.getBButtonPressed()) {
+    if (RobotContainer.m_driveController.getYButtonPressed()) {
       if (Constants.driveSpeed == .7) {
         Constants.driveSpeed = 1;
       } else {
@@ -43,11 +51,21 @@ public class Robot extends TimedRobot {
       }
     }
 
-    // Intaker
-    if (RobotContainer.m_driveController.getAButton()) {
+    // Arm Intaker
+    if (RobotContainer.m_armController.getAButton()) {
       RobotContainer.m_arm.close();
-    } else if (RobotContainer.m_driveController.getBButton()) {
+    } else if (RobotContainer.m_armController.getBButton()) {
       RobotContainer.m_arm.open();
+    }
+
+    // Main Intaker
+    if (RobotContainer.m_driveController.getBButtonPressed()) {
+      RobotContainer.m_intaker.toggle();
+    }
+
+    // Drive Mode Toggle
+    if (RobotContainer.m_driveController.getLeftBumperPressed()) {
+      RobotContainer.m_drive.toggleMode();
     }
 
     // Drive functionality

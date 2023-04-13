@@ -1,60 +1,57 @@
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.XboxController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
-import edu.wpi.first.math.MathUtil;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+
 
 public class Drive {
 
-    private MotorController m_frontLeft;
-    private MotorController m_rearLeft;
+    private CANSparkMax m_frontLeft;
+    private CANSparkMax m_rearLeft;
     private MotorControllerGroup m_left;
 
-    private MotorController m_frontRight;
-    private MotorController m_rearRight;
+    private CANSparkMax m_frontRight;
+    private CANSparkMax m_rearRight;
     private MotorControllerGroup m_right;
 
     private DifferentialDrive m_drive;
 
-    public XboxController m_controller;
-    public XboxController m_controllerSide;
-
     Drive() {
-        m_frontLeft = new PWMSparkMax(2);
-        m_rearLeft = new PWMSparkMax(3);
+        m_frontLeft = new CANSparkMax(1, MotorType.kBrushless);
+        m_rearLeft = new CANSparkMax(2, MotorType.kBrushless);
         m_left = new MotorControllerGroup(m_frontLeft, m_rearLeft);
 
-        m_frontRight = new PWMSparkMax(4);
-        m_rearRight = new PWMSparkMax(5);
+        m_frontRight = new CANSparkMax(3, MotorType.kBrushless);
+        m_rearRight = new CANSparkMax(4, MotorType.kBrushless);
         m_right = new MotorControllerGroup(m_frontRight, m_rearRight);
 
         m_drive = new DifferentialDrive(m_left, m_right);
         m_drive.setSafetyEnabled(false);
-
-        m_controller = new XboxController(0);
-        m_controllerSide = new XboxController(1);
     }
 
     public void rotateDrive(double speed, double rotation) {
-        // m_drive.arcadeDrive(speed, rotation);
-
-        speed = MathUtil.applyDeadband(speed, 0);
-        rotation = MathUtil.applyDeadband(rotation, 0);
-
-        WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(speed, rotation, true);
-
-        m_left.set(speeds.left * 1);
-        m_right.set(speeds.right * 1);
+        m_drive.arcadeDrive(speed, rotation);
     }
 
     public void straightDrive(double speed) {
         m_drive.tankDrive(-speed, speed);
+    }
+
+    public void toggleMode() {
+        if (m_frontLeft.getIdleMode() == IdleMode.kBrake) {
+            m_frontLeft.setIdleMode(IdleMode.kCoast);
+            m_rearLeft.setIdleMode(IdleMode.kCoast);
+            m_frontRight.setIdleMode(IdleMode.kCoast);
+            m_rearRight.setIdleMode(IdleMode.kCoast);
+        } else {
+            m_frontLeft.setIdleMode(IdleMode.kBrake);
+            m_rearLeft.setIdleMode(IdleMode.kBrake);
+            m_frontRight.setIdleMode(IdleMode.kBrake);
+            m_rearRight.setIdleMode(IdleMode.kBrake);
+        }
     }
 }
