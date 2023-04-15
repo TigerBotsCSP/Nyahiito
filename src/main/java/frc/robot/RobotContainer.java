@@ -28,11 +28,13 @@ public class RobotContainer {
     public static void updateData() {
         // Set Shuffleboard data
         Constants.Auto.autoPath = SmartDashboard.getString("Auto Path/active", "");
-        SmartDashboard.putNumber("Gyro Angle", m_gyro.getAngle());
-        SmartDashboard.putNumber("Turn Rate", m_gyro.getTurnRate());
+        SmartDashboard.putNumber("Gyro Pitch", m_gyro.getGyro().getPitch());
+        SmartDashboard.putNumber("Gyro Roll", m_gyro.getGyro().getRoll());
+        SmartDashboard.putNumber("Gyro Yaw", m_gyro.getGyro().getYaw());
         SmartDashboard.putBoolean("Drive Speed", (Constants.driveSpeed == .7 ? false : true)); // Green if turbo
         SmartDashboard.putBoolean("Arm Speed", (Constants.armSpeed == .6 ? false : true)); // Green if turbo
-        SmartDashboard.putBoolean("Intaker In", m_intaker.m_in); // Green if turbo
+        SmartDashboard.putBoolean("Intaker In", m_intaker.m_in);
+        SmartDashboard.putBoolean("Brake Mode", m_drive.m_brakeMode);
     }
 
     public static void init() {

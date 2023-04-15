@@ -1,17 +1,17 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Intaker {
     public boolean m_in;
-    private PWMSparkMax m_intaker;
+    private CANSparkMax m_intaker;
 
     Intaker() {
-        m_intaker = new PWMSparkMax(1);
+        m_intaker = new CANSparkMax(7, MotorType.kBrushless);
         m_in = true;
     }
 
-    // TODO: Test it out, might need to switch in/out or change speed
     public void toggle() {
         if (m_in) {
             m_intaker.set(-Constants.intakerSpeed);

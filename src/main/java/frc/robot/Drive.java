@@ -20,6 +20,8 @@ public class Drive {
 
     private DifferentialDrive m_drive;
 
+    public boolean m_brakeMode;
+
     Drive() {
         m_frontLeft = new CANSparkMax(1, MotorType.kBrushless);
         m_rearLeft = new CANSparkMax(2, MotorType.kBrushless);
@@ -31,6 +33,8 @@ public class Drive {
 
         m_drive = new DifferentialDrive(m_left, m_right);
         m_drive.setSafetyEnabled(false);
+
+        m_brakeMode = true;
     }
 
     public void rotateDrive(double speed, double rotation) {
@@ -42,16 +46,20 @@ public class Drive {
     }
 
     public void toggleMode() {
-        if (m_frontLeft.getIdleMode() == IdleMode.kBrake) {
+        if (m_brakeMode) {
             m_frontLeft.setIdleMode(IdleMode.kCoast);
             m_rearLeft.setIdleMode(IdleMode.kCoast);
             m_frontRight.setIdleMode(IdleMode.kCoast);
             m_rearRight.setIdleMode(IdleMode.kCoast);
+
+            m_brakeMode = false;
         } else {
             m_frontLeft.setIdleMode(IdleMode.kBrake);
             m_rearLeft.setIdleMode(IdleMode.kBrake);
             m_frontRight.setIdleMode(IdleMode.kBrake);
             m_rearRight.setIdleMode(IdleMode.kBrake);
+
+            m_brakeMode = true;
         }
     }
 }

@@ -18,12 +18,20 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class NyaDS extends WebSocketServer {
     // Variables
-    boolean executing = false;
+    public Timer m_timer = new Timer();
+    public boolean m_executing = false;
+
+    // Gyro variables
+    private final double Kp = 0.05;
+    private final double Ki = 0.0;
+    private final double Kd = 0.0;
+    private double integral = 0.0;
+    private double previousError = 0.0;
+    private double setPoint = 0.0;
 
     public NyaDS() {
         super(new InetSocketAddress(9072));
@@ -68,7 +76,10 @@ public class NyaDS extends WebSocketServer {
     }
 
     public void execute(JsonArray schedule) {
-        executing = true;
+        m_timer.start();
+
+        m_executing = true;
+
         for (JsonElement cmd : schedule) {
             JsonObject data = cmd.getAsJsonObject();
             String type = data.get("type").getAsString();
@@ -89,14 +100,36 @@ public class NyaDS extends WebSocketServer {
                 RobotContainer.m_arm.setLength(0);
             } else if (type.equals("Delay")) {
                 Timer.delay(time);
+            } else if (type.equals("Intaker")) {
+                RobotContainer.m_intaker.toggle();
+            } else if (type.equals("Balance")) {
+                while (m_timer.get() < 14.9) {
+                    double angle = RobotContainer.m_gyro.getGyro().getPitch();
+
+                    // Calculate the error and update the integral
+                    double error = setPoint - angle;
+                    integral += error * 0.02;
+                    double derivative = (error - previousError) / 0.02;
+                    previousError = error;
+        
+                    // Calculate the output using the PID formula
+                    double output = Kp * error + Ki * integral + Kd * derivative;
+        
+                    output = RobotContainer.limit(output, 1);
+        
+                    RobotContainer.m_drive.straightDrive(-output);
+        
+                    Timer.delay(0.02);
+                }
+
+                m_timer.reset();
             }
-            ;
         }
-        executing = false;
+        m_executing = false;
     }
 
     public void reverse(JsonArray schedule) {
-        executing = true;
+        m_executing = true;
         for (int i = schedule.size() - 1; i >= 0; i--) {
             JsonElement cmd = schedule.get(i);
             JsonObject data = cmd.getAsJsonObject();
@@ -121,7 +154,7 @@ public class NyaDS extends WebSocketServer {
             }
             ;
         }
-        executing = false;
+        m_executing = false;
     }
 
     public void save(JsonArray schedule) {
@@ -133,7 +166,7 @@ public class NyaDS extends WebSocketServer {
         String json = gson.toJson(schedule, JsonArray.class);
 
         try {
-            Files.write(Paths.get("/home/lvuser/" + id + ".json"), json.getBytes());
+            Files.write(Paths.get("/home/lvuser/nyads/" + id + ".json"), json.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -15,7 +15,7 @@ public class Gyro {
     double kD = 0.00;
     
     Gyro() {
-        m_gyro = new AHRS(I2C.Port.kOnboard);
+        m_gyro = new AHRS(I2C.Port.kMXP);
         m_pid = new PIDController(kP, kI, kD);
     }
 

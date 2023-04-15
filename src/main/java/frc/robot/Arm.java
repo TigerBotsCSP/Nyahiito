@@ -1,20 +1,23 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 
 public class Arm {
     private DoubleSolenoid m_solenoid;
 
-    private PWMSparkMax m_armRotation;
-    private PWMSparkMax m_armLength;
+    private CANSparkMax m_armRotation;
+    private CANSparkMax m_armLength;
 
     Arm() {
         m_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
-        m_armLength = new PWMSparkMax(0);
-        m_armRotation = new PWMSparkMax(1);
+        m_armLength = new CANSparkMax(5, MotorType.kBrushed);
+        m_armRotation = new CANSparkMax(6, MotorType.kBrushed);
     }
 
     public void open() {

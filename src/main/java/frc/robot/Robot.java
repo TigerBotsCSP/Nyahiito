@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (RobotContainer.m_nyads.executing)
+    if (RobotContainer.m_nyads.m_executing)
       return;
 
     // Drive Speed Toggle``
