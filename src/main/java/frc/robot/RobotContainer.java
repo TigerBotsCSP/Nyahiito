@@ -42,8 +42,8 @@ public class RobotContainer {
             // Autonomous chooser
             ArrayList<String> fileNames = new ArrayList<>();
 
-            File directory = new File("/home/lvuser/nyads/");
-            File[] files = directory.listFiles((dir, name) -> name.endsWith(".json"));
+            File directory = new File("/home/lvuser/");
+            File[] files = directory.listFiles((dir, name) -> name.endsWith(".nyads"));
 
             for (File file : files) {
                 fileNames.add(file.getName());

@@ -42,7 +42,7 @@ public class Drive {
     }
 
     public void straightDrive(double speed) {
-        m_drive.tankDrive(-speed, speed);
+        m_drive.arcadeDrive(0, speed);
     }
 
     public void toggleMode() {

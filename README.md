@@ -1,16 +1,11 @@
 <h1 align="center">
-Nyahiito Development
+Nyahiito
 </h1>
 
 <p align="center">
-  <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/213f11f7-b47f-4f5c-b394-1bc1e6d41f48/de0wug1-f3245890-6c81-4f3c-b162-a085f5d230d5.png/v1/fill/w_256,h_256,strp/shiny_litten__shuffle__by_noodnood966_de0wug1-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MjU2IiwicGF0aCI6IlwvZlwvMjEzZjExZjctYjQ3Zi00ZjVjLWIzOTQtMWJjMWU2ZDQxZjQ4XC9kZTB3dWcxLWYzMjQ1ODkwLTZjODEtNGYzYy1iMTYyLWEwODVmNWQyMzBkNS5wbmciLCJ3aWR0aCI6Ijw9MjU2In1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.tmq7_Yi2pj9gsmniR11pF03wFq4bLRlM8Xr8eXGdaLI" alt="torracat (nyahiito)"/>
+  <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/bc459c9d-4f48-42f9-8136-ae9b07ca821d/df25lco-e0a49ed6-8aeb-4ea9-ac19-1ccb06324ad6.png/v1/fit/w_300,h_399/torracat___stock_icon_by_chloehoe720_df25lco-300w.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9Mzk5IiwicGF0aCI6IlwvZlwvYmM0NTljOWQtNGY0OC00MmY5LTgxMzYtYWU5YjA3Y2E4MjFkXC9kZjI1bGNvLWUwYTQ5ZWQ2LThhZWItNGVhOS1hYzE5LTFjY2IwNjMyNGFkNi5wbmciLCJ3aWR0aCI6Ijw9NDAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.sl4AMzHF1szOo0g-OnAs8wHXbKjdzVdBp4foxF4gZkU" alt="torracat (nyahiito)"/>
 </p>
 
 <p align="center">
-Development branch for Akky's use on his FRC virtual machine setup. Currently, there is the Nyahiito Control Panel in its POC spot. This panel allows for efficient debugging of the robot's cores, autonomous pathways, variables, and more.
-<br><br>
-<b>Server:</b> Completed<br>
-<b>Client Website:</b> WIP, basics completed<br>
-<b>Robot Code:</b> WIP, basics such as connection and recieving/publishing completed
-</b>
+Nyahiito is ready for worlds. 🏆
 </p>

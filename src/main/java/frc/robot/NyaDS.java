@@ -87,7 +87,7 @@ public class NyaDS extends WebSocketServer {
             double speed = data.get("speed").getAsDouble();
 
             if (type.equals("Drive")) {
-                RobotContainer.m_drive.straightDrive(-speed);
+                RobotContainer.m_drive.straightDrive(speed);
                 Timer.delay(time);
                 RobotContainer.m_drive.straightDrive(0);
             } else if (type.equals("Rotate")) {
@@ -101,7 +101,13 @@ public class NyaDS extends WebSocketServer {
             } else if (type.equals("Delay")) {
                 Timer.delay(time);
             } else if (type.equals("Intaker")) {
-                RobotContainer.m_intaker.toggle();
+                RobotContainer.m_intaker.togglePusher();
+            } else if (type.equals("Mouth")) {
+                RobotContainer.m_intaker.toggleMotor();
+            } else if (type.equals("Open")) {
+                RobotContainer.m_arm.open();
+            } else if (type.equals("Close")) {
+                RobotContainer.m_arm.close();
             } else if (type.equals("Balance")) {
                 while (m_timer.get() < 14.9) {
                     double angle = RobotContainer.m_gyro.getGyro().getPitch();
@@ -117,7 +123,7 @@ public class NyaDS extends WebSocketServer {
         
                     output = RobotContainer.limit(output, 1);
         
-                    RobotContainer.m_drive.straightDrive(-output);
+                    RobotContainer.m_drive.straightDrive(output);
         
                     Timer.delay(0.02);
                 }
@@ -177,7 +183,7 @@ public class NyaDS extends WebSocketServer {
     public JsonArray load(String path) {
         try {
             // Load file into a String
-            String pathData = new String(Files.readAllBytes(Paths.get(path)));
+            String pathData = new String(Files.readAllBytes(Paths.get("/home/lvuser/" + path)));
             Gson gson = new Gson();
 
             // Put the actions into the Array

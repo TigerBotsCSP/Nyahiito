@@ -15,7 +15,7 @@ public class Arm {
     private CANSparkMax m_armLength;
 
     Arm() {
-        m_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 1);
+        m_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH, 8, 9);
         m_armLength = new CANSparkMax(5, MotorType.kBrushed);
         m_armRotation = new CANSparkMax(6, MotorType.kBrushed);
     }
