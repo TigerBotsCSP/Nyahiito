@@ -23,10 +23,10 @@ public class Intaker {
 
     public void toggleMotor() {
         if (m_in) {
-            m_intakerMotor.set(-Constants.intakerSpeed);
+            m_intakerMotor.set(Constants.intakerSpeed);
             m_in = false;
         } else {
-            m_intakerMotor.set(Constants.intakerSpeed);
+            m_intakerMotor.set(-Constants.intakerSpeed);
             m_in = true;
         }
     }
@@ -39,5 +39,13 @@ public class Intaker {
             m_intakerPusher.set(Value.kForward);
             m_down = true;
         }
+    }
+
+    public double getCurrent() {
+        return m_intakerMotor.getOutputCurrent();
+    }
+
+    public void setSpeed(double speed) {
+        m_intakerMotor.set(speed);
     }
 }

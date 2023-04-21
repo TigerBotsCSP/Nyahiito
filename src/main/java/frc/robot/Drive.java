@@ -34,7 +34,7 @@ public class Drive {
         m_drive = new DifferentialDrive(m_left, m_right);
         m_drive.setSafetyEnabled(false);
 
-        m_brakeMode = true;
+        m_brakeMode = false;
     }
 
     public void rotateDrive(double speed, double rotation) {

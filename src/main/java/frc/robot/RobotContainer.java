@@ -35,6 +35,7 @@ public class RobotContainer {
         SmartDashboard.putBoolean("Arm Speed", (Constants.armSpeed == .6 ? false : true)); // Green if turbo
         SmartDashboard.putBoolean("Intaker In", m_intaker.m_in);
         SmartDashboard.putBoolean("Brake Mode", m_drive.m_brakeMode);
+        SmartDashboard.putNumber("Intake Current", m_intaker.getCurrent());
     }
 
     public static void init() {
@@ -43,7 +44,7 @@ public class RobotContainer {
             ArrayList<String> fileNames = new ArrayList<>();
 
             File directory = new File("/home/lvuser/");
-            File[] files = directory.listFiles((dir, name) -> name.endsWith(".nyads"));
+            File[] files = directory.listFiles((dir, name) ->  name.endsWith(".nyads"));
 
             for (File file : files) {
                 fileNames.add(file.getName());
